@@ -1,0 +1,228 @@
+/* ==========================================================================
+   Dashboard View — Step 3: Flight modes aside + charts + attitude indicators
+   ========================================================================== */
+
+.dashboard-v2 {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  height: calc(100vh - var(--header-height) - 48px);
+  overflow: hidden;
+}
+
+/* -----------------------------------------------------------------------
+   Left aside — flight mode fieldsets
+   ----------------------------------------------------------------------- */
+
+.dashboard-v2__aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background-color: var(--color-bg-sidebar);
+  border-right: 1px solid var(--color-border-subtle);
+  overflow-y: auto;
+}
+
+/* Fieldset base */
+.mode-fieldset {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  background-color: var(--color-bg-surface);
+  transition:
+    border-color var(--transition-base),
+    background-color var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+/* Active fieldset highlight */
+.mode-fieldset--active {
+  border-color: var(--color-accent-default);
+  background-color: var(--color-accent-subtle);
+  box-shadow: 0 0 0 1px var(--color-accent-default);
+}
+
+.mode-fieldset__legend {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 var(--space-2);
+}
+
+.mode-fieldset--active .mode-fieldset__legend {
+  color: var(--color-accent-default);
+}
+
+.mode-fieldset__desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin: var(--space-2) 0 var(--space-3);
+  line-height: var(--line-height-relaxed);
+}
+
+.mode-fieldset__field {
+  margin-bottom: var(--space-3);
+}
+
+.mode-fieldset__label {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+}
+
+.mode-fieldset__input {
+  width: 100%;
+  font-size: var(--font-size-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.mode-fieldset__cta {
+  width: 100%;
+  font-size: var(--font-size-sm);
+  padding: var(--space-2) var(--space-3);
+  min-height: 40px;
+}
+
+/* -----------------------------------------------------------------------
+   Main body
+   ----------------------------------------------------------------------- */
+
+.dashboard-v2__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  overflow-y: auto;
+}
+
+/* -----------------------------------------------------------------------
+   Chart placeholders — lime green solid rectangles
+   ----------------------------------------------------------------------- */
+
+.dashboard-v2__charts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.chart-placeholder {
+  width: 100%;
+  height: 200px;
+  background-color: lime;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.chart-placeholder__label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.chart-placeholder__title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: #000;
+  letter-spacing: 0.02em;
+}
+
+.chart-placeholder__note {
+  font-size: var(--font-size-xs);
+  color: #1a1a1a;
+  font-family: var(--font-family-mono);
+  opacity: 0.7;
+}
+
+/* -----------------------------------------------------------------------
+   Attitude indicators
+   ----------------------------------------------------------------------- */
+
+.dashboard-v2__attitude {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+
+.attitude-indicator {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+}
+
+.attitude-indicator__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.attitude-indicator__label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.attitude-indicator__value {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  font-family: var(--font-family-mono);
+  line-height: 1;
+}
+
+.attitude-indicator__value--ok   { color: var(--color-status-ok); }
+.attitude-indicator__value--warn { color: var(--color-status-warning); }
+
+/* Bar track */
+.attitude-indicator__track {
+  position: relative;
+  height: 8px;
+  background-color: var(--color-bg-elevated);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.attitude-indicator__centre-mark {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--color-border-strong);
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.attitude-indicator__fill {
+  height: 100%;
+  background-color: var(--color-status-ok);
+  border-radius: var(--radius-full);
+  transition: width var(--transition-base);
+}
+
+.attitude-indicator__fill--warn {
+  background-color: var(--color-status-warning);
+}
+
+/* Scale labels */
+.attitude-indicator__scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-family: var(--font-family-mono);
+}

@@ -1,0 +1,7 @@
+/* App.css — intentionally empty.
+   All styles live in:
+     - src/index.css          (design tokens + global base)
+     - src/components/*.css   (shared component styles)
+     - src/layouts/*.css      (layout chrome)
+     - src/views/**/*.css     (per-view styles)
+*/

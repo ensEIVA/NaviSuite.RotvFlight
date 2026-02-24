@@ -1,0 +1,286 @@
+/* ==========================================================================
+   Systems View — Step 1: Network Discovery
+   ========================================================================== */
+
+.systems-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-6);
+  min-height: 100%;
+}
+
+/* Header row */
+.systems-view__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.systems-view__header-meta {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+.systems-view__count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-family: var(--font-family-mono);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* -----------------------------------------------------------------------
+   System cards grid
+   ----------------------------------------------------------------------- */
+
+.systems-view__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-6);
+}
+
+/* -----------------------------------------------------------------------
+   System card
+   ----------------------------------------------------------------------- */
+
+.system-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition:
+    border-color var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+.system-card:hover {
+  border-color: var(--color-border-default);
+  box-shadow: var(--shadow-md);
+}
+
+.system-card--connected {
+  border-color: var(--color-status-ok-border);
+}
+
+.system-card--selected {
+  border-color: var(--color-accent-default);
+  box-shadow: 0 0 0 2px var(--color-accent-subtle);
+}
+
+/* Card header */
+.system-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+  background-color: var(--color-bg-elevated);
+}
+
+.system-card__identity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.system-card__name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-tight);
+}
+
+.system-card__type {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.system-card__status-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.system-card__status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.system-card__status-dot--connected {
+  background-color: var(--color-status-ok);
+  box-shadow: 0 0 6px var(--color-status-ok);
+  animation: pulse-ok 2s ease-in-out infinite;
+}
+
+.system-card__status-dot--disconnected {
+  background-color: var(--color-status-offline);
+}
+
+.system-card__status-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+/* Card body */
+.system-card__body {
+  padding: var(--space-4) var(--space-5);
+  flex: 1;
+}
+
+.system-card__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.system-card__detail-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.system-card__detail-row dt {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.system-card__detail-row dd {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-align: right;
+}
+
+.system-card__detail-row dd code {
+  font-family: var(--font-family-mono);
+  color: var(--color-status-info);
+  background: var(--color-status-info-bg);
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+/* Signal strength colours */
+.system-card__signal {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+.signal--excellent {
+  color: var(--color-status-ok);
+  background: var(--color-status-ok-bg);
+}
+
+.signal--good {
+  color: var(--color-status-ok);
+  background: var(--color-status-ok-bg);
+}
+
+.signal--fair {
+  color: var(--color-status-warning);
+  background: var(--color-status-warning-bg);
+}
+
+.signal--poor {
+  color: var(--color-status-critical);
+  background: var(--color-status-critical-bg);
+}
+
+/* Card footer */
+.system-card__footer {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-border-subtle);
+  background-color: var(--color-bg-elevated);
+}
+
+.system-card__btn {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* -----------------------------------------------------------------------
+   Selection summary
+   ----------------------------------------------------------------------- */
+
+.systems-view__selection-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+}
+
+.systems-view__selection-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.systems-view__selection-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+}
+
+.systems-view__selection-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent-default);
+  background: var(--color-accent-subtle);
+  border: 1px solid var(--color-accent-default);
+  border-radius: var(--radius-full);
+  padding: var(--space-1) var(--space-3);
+}
+
+/* -----------------------------------------------------------------------
+   Proceed CTA
+   ----------------------------------------------------------------------- */
+
+.systems-view__cta {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: var(--space-4);
+}
+
+.systems-view__proceed-btn {
+  min-width: 260px;
+}
+
+/* -----------------------------------------------------------------------
+   Animation
+   ----------------------------------------------------------------------- */
+
+@keyframes pulse-ok {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}

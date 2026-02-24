@@ -1,0 +1,252 @@
+/* ==========================================================================
+   Diagnostics View
+   ========================================================================== */
+
+.diagnostics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.view-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.view-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.view-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: var(--space-1) 0 0;
+}
+
+.diag__header-actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* --- Health chip grid --- */
+.diag__health-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.diag__health-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.diag__health-chip--warning {
+  background-color: var(--color-status-warning-bg);
+  border-color: var(--color-status-warning-border);
+}
+
+.diag__health-chip--offline {
+  background-color: var(--color-status-offline-bg);
+  border-color: var(--color-status-offline-border);
+}
+
+.diag__health-chip--critical {
+  background-color: var(--color-status-critical-bg);
+  border-color: var(--color-status-critical-border);
+}
+
+.diag__health-chip-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+/* --- Panel base --- */
+.panel {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-subtle);
+  gap: var(--space-3);
+}
+
+.panel__title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+
+.panel__body {
+  padding: var(--space-5);
+}
+
+.panel__body--noPad {
+  padding: 0;
+}
+
+.diag__event-count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.diag__event-count--warning {
+  color: var(--color-status-warning);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* --- Event list --- */
+.diag__event-list {
+  list-style: none;
+}
+
+.diag__event {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.diag__event:last-child {
+  border-bottom: none;
+}
+
+.diag__event--resolved {
+  opacity: 0.6;
+}
+
+/* Vertical accent bar */
+.diag__event-marker {
+  width: 4px;
+  align-self: stretch;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.diag__event--critical .diag__event-marker { background-color: var(--color-status-critical); }
+.diag__event--warning  .diag__event-marker { background-color: var(--color-status-warning); }
+.diag__event--info     .diag__event-marker { background-color: var(--color-status-info); }
+.diag__event--ok       .diag__event-marker { background-color: var(--color-status-ok); }
+
+.diag__event-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.diag__event-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.diag__event-id {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+}
+
+.diag__event-subsystem {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  letter-spacing: 0.04em;
+}
+
+.diag__event-type {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  background-color: var(--color-bg-elevated);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.diag__event-time {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-left: auto;
+}
+
+.diag__event-resolved-badge {
+  font-size: var(--font-size-xs);
+  color: var(--color-status-ok);
+  background-color: var(--color-status-ok-bg);
+  border: 1px solid var(--color-status-ok-border);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.diag__event-description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+.diag__event-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+/* --- Diagnostic tools grid --- */
+.diag__tools {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+@media (max-width: 1100px) {
+  .diag__tools { grid-template-columns: 1fr 1fr; }
+}
+
+.diag__tool-card {
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.diag__tool-card h3 {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+
+.diag__tool-card p {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: var(--line-height-relaxed);
+  flex: 1;
+}

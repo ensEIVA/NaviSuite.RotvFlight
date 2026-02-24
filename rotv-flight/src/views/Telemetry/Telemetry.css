@@ -1,0 +1,265 @@
+/* ==========================================================================
+   Telemetry View
+   ========================================================================== */
+
+.telemetry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.view-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.view-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.view-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: var(--space-1) 0 0;
+}
+
+.telemetry__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+/* --- Live indicator --- */
+.telemetry__live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-status-ok);
+}
+
+.telemetry__live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-status-ok);
+  animation: live-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* --- Gauge bars row --- */
+.telemetry__gauges {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-4);
+}
+
+@media (max-width: 1400px) {
+  .telemetry__gauges {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .telemetry__gauges {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* --- Individual gauge bar --- */
+.gauge-bar {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.gauge-bar__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.gauge-bar__label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.gauge-bar__reading {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+}
+
+.gauge-bar__reading strong {
+  font-weight: var(--font-weight-bold);
+}
+
+.gauge-bar__track {
+  height: 8px;
+  background-color: var(--color-bg-elevated);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.gauge-bar__fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow), background-color var(--transition-base);
+}
+
+.gauge-bar__fill--ok       { background-color: var(--color-status-ok); }
+.gauge-bar__fill--warning  { background-color: var(--color-status-warning); }
+.gauge-bar__fill--critical { background-color: var(--color-status-critical); }
+
+.gauge-bar__range {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-family: var(--font-family-mono);
+}
+
+/* --- Tables grid --- */
+.telemetry__tables {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+}
+
+@media (max-width: 1200px) {
+  .telemetry__tables {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 800px) {
+  .telemetry__tables {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Panel (shared) --- */
+.panel {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-subtle);
+  gap: var(--space-3);
+}
+
+.panel__title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+
+.panel__meta {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.panel__body {
+  padding: var(--space-4);
+}
+
+.panel__body--table {
+  padding: 0;
+}
+
+/* --- Telemetry table --- */
+.telem-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.telem-table thead tr {
+  background-color: var(--color-bg-elevated);
+}
+
+.telem-table th {
+  padding: var(--space-2) var(--space-4);
+  text-align: left;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.telem-row td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+  vertical-align: middle;
+}
+
+.telem-row:last-child td {
+  border-bottom: none;
+}
+
+.telem-row__label {
+  color: var(--color-text-secondary);
+}
+
+.telem-row__value {
+  font-family: var(--font-family-mono);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+.telem-row__number {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.telem-row__number--ok       { color: var(--color-status-ok); }
+.telem-row__number--warning  { color: var(--color-status-warning); }
+.telem-row__number--critical { color: var(--color-status-critical); }
+.telem-row__number--neutral  { color: var(--color-text-primary); }
+
+.telem-row__unit {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.telem-row__threshold {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family-mono);
+}
+
+/* status row highlights */
+.telem-row--warning {
+  background-color: rgba(245, 158, 11, 0.04);
+}
+
+.telem-row--critical {
+  background-color: rgba(239, 68, 68, 0.06);
+}

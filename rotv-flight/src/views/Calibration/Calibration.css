@@ -1,0 +1,293 @@
+/* ==========================================================================
+   Calibration View
+   ========================================================================== */
+
+.calibration {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.view-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.view-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.view-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: var(--space-1) 0 0;
+}
+
+.cal__header-actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* --- Summary strip --- */
+.cal__summary {
+  display: flex;
+  gap: var(--space-6);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+}
+
+.cal__stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.cal__stat-value {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  font-family: var(--font-family-mono);
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+.cal__stat-value--ok       { color: var(--color-status-ok); }
+.cal__stat-value--warning  { color: var(--color-status-warning); }
+.cal__stat-value--critical { color: var(--color-status-critical); }
+.cal__stat-value--info     { color: var(--color-status-info); }
+
+.cal__stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* --- Body layout --- */
+.cal__body {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: var(--space-6);
+}
+
+@media (max-width: 1000px) {
+  .cal__body { grid-template-columns: 1fr; }
+}
+
+/* --- Panel base --- */
+.panel {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-subtle);
+  gap: var(--space-3);
+}
+
+.panel__title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+
+.panel__body--noPad {
+  padding: 0;
+}
+
+/* --- Calibration list --- */
+.cal__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.cal__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-4) var(--space-5);
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border-subtle);
+  border-radius: 0;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.cal__item:last-child {
+  border-bottom: none;
+}
+
+.cal__item:hover {
+  background-color: var(--color-bg-overlay);
+}
+
+.cal__item--selected {
+  background-color: var(--color-accent-subtle) !important;
+  border-left: 3px solid var(--color-accent-default);
+}
+
+.cal__item-left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.cal__item-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.cal__item-meta {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.cal__item-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.cal__item-residual {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* --- Detail pane --- */
+.cal__detail-pane {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+}
+
+.cal__detail {
+  display: flex;
+  flex-direction: column;
+}
+
+.cal__detail-body {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.cal__detail-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cal__meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-sm);
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-bg-elevated);
+  border-radius: var(--radius-sm);
+}
+
+.cal__meta-row dt {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-normal);
+}
+
+.cal__meta-row dd {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-align: right;
+}
+
+/* --- Stale notes box --- */
+.cal__notes-box {
+  background-color: var(--color-status-warning-bg);
+  border: 1px solid var(--color-status-warning-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+.cal__notes-box h3 {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-status-warning);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 var(--space-2);
+}
+
+.cal__notes-box p {
+  font-size: var(--font-size-sm);
+  color: #fcd34d;
+  margin: 0;
+}
+
+/* --- Progress indicator --- */
+.cal__progress-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cal__progress-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-status-info);
+  margin: 0;
+}
+
+.cal__progress-bar {
+  height: 6px;
+  background-color: var(--color-bg-elevated);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.cal__progress-fill {
+  height: 100%;
+  background-color: var(--color-accent-default);
+  border-radius: var(--radius-full);
+  animation: cal-progress-indeterminate 1.8s ease-in-out infinite;
+}
+
+@keyframes cal-progress-indeterminate {
+  0%   { transform: translateX(-100%); width: 60%; }
+  100% { transform: translateX(220%);  width: 60%; }
+}
+
+.cal__detail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.cal__detail-empty {
+  padding: var(--space-8);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}

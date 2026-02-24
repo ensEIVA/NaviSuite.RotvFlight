@@ -1,0 +1,115 @@
+/* ==========================================================================
+   Header Component
+   ========================================================================== */
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-height);
+  background-color: var(--color-bg-header);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding: 0 var(--space-6);
+  gap: var(--space-6);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  flex-shrink: 0;
+}
+
+/* --- Sections --- */
+.app-header__left,
+.app-header__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex: 1;
+}
+
+.app-header__right {
+  justify-content: flex-end;
+}
+
+.app-header__centre {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* --- Vertical divider --- */
+.app-header__divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--color-border-subtle);
+}
+
+/* --- Mission info --- */
+.app-header__mission,
+.app-header__phase {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.app-header__mission-label,
+.app-header__phase-label,
+.app-header__utc-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.app-header__mission-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  line-height: 1.2;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Flight phase chip --- */
+.app-header__phase-value {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+  color: var(--color-text-secondary);
+}
+
+.app-header__phase-value--survey {
+  color: var(--color-status-ok);
+}
+
+.app-header__phase-value--pre_flight,
+.app-header__phase-value--launch,
+.app-header__phase-value--recovery {
+  color: var(--color-status-info);
+}
+
+.app-header__phase-value--standby,
+.app-header__phase-value--post_flight {
+  color: var(--color-text-muted);
+}
+
+/* --- UTC clock --- */
+.app-header__utc {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-end;
+}
+
+.app-header__utc-time {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}

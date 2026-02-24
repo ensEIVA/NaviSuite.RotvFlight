@@ -1,0 +1,120 @@
+/* ==========================================================================
+   EmergencyStop Component
+   ========================================================================== */
+
+.estop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Idle state (the big red button) --- */
+.estop--idle {
+  background-color: var(--color-estop-bg);
+  border: 3px solid var(--color-estop-border);
+  color: var(--color-estop-text);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-8);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
+  letter-spacing: 0.08em;
+  min-width: 140px;
+  min-height: 64px;
+  gap: var(--space-2);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2), var(--shadow-md);
+  transition:
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.estop--idle:hover:not(:disabled) {
+  background-color: var(--color-estop-hover);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35), var(--shadow-lg);
+  transform: scale(1.02);
+}
+
+.estop--idle:active:not(:disabled) {
+  background-color: var(--color-estop-active);
+  transform: scale(0.98);
+}
+
+.estop--idle:focus-visible {
+  outline: 3px solid #fca5a5;
+  outline-offset: 3px;
+}
+
+.estop__icon {
+  font-size: 1.4em;
+  line-height: 1;
+}
+
+.estop__label {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.1em;
+}
+
+/* --- Armed / confirmation state --- */
+.estop--armed {
+  background-color: var(--color-status-critical-bg);
+  border: 2px solid var(--color-status-critical-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  gap: var(--space-3);
+  animation: estop-arm-flash 0.5s ease;
+}
+
+@keyframes estop-arm-flash {
+  0%   { opacity: 0.4; transform: scale(0.97); }
+  100% { opacity: 1;   transform: scale(1); }
+}
+
+.estop__confirm-text {
+  color: var(--color-status-critical);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.06em;
+  margin: 0;
+  text-align: center;
+}
+
+.estop__confirm-actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.estop__confirm-btn {
+  background-color: var(--color-status-critical);
+  border: none;
+  color: #fff;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+  letter-spacing: 0.06em;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  animation: estop-confirm-pulse 1s ease infinite;
+}
+
+.estop__confirm-btn:hover {
+  background-color: #b91c1c;
+}
+
+@keyframes estop-confirm-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+  50%       { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+}
+
+.estop__cancel-btn {
+  background-color: transparent;
+  border: 1px solid var(--color-border-default);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+}
+
+.estop__cancel-btn:hover {
+  background-color: var(--color-bg-overlay);
+}

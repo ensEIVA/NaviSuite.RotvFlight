@@ -1,0 +1,191 @@
+/* ==========================================================================
+   Sidebar Component
+   ========================================================================== */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  height: 100vh;
+  background-color: var(--color-bg-sidebar);
+  border-right: 1px solid var(--color-border-subtle);
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: var(--z-sticky);
+  flex-shrink: 0;
+}
+
+/* --- Brand block --- */
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+  height: var(--header-height);
+  flex-shrink: 0;
+}
+
+.sidebar__brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background-color: var(--color-accent-default);
+  color: #fff;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--radius-md);
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.sidebar__brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.sidebar__brand-name {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: 0.06em;
+}
+
+.sidebar__brand-sub {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* --- Navigation --- */
+.sidebar__nav {
+  flex: 1;
+  padding: var(--space-4) 0;
+  overflow-y: auto;
+}
+
+.sidebar__nav-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 var(--space-2);
+}
+
+.sidebar__nav-item {
+  width: 100%;
+}
+
+.sidebar__nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+  border: 1px solid transparent;
+}
+
+.sidebar__nav-link:hover {
+  background-color: var(--color-bg-overlay);
+  color: var(--color-text-primary);
+}
+
+.sidebar__nav-link--active {
+  background-color: var(--color-accent-subtle);
+  color: var(--color-accent-default);
+  border-color: rgba(30, 144, 212, 0.2);
+}
+
+.sidebar__nav-link--active:hover {
+  background-color: var(--color-accent-subtle);
+  color: var(--color-accent-hover);
+}
+
+.sidebar__nav-icon {
+  font-size: 1.1em;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.sidebar__nav-label {
+  flex: 1;
+  line-height: 1;
+}
+
+.sidebar__nav-badge {
+  background-color: var(--color-status-critical);
+  color: #fff;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--radius-full);
+  padding: 2px 6px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* --- Footer / Instance info --- */
+.sidebar__footer {
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border-subtle);
+  flex-shrink: 0;
+}
+
+.sidebar__instance {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.sidebar__instance-dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-status-ok);
+  animation: sidebar-dot-pulse 3s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes sidebar-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.sidebar__instance-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sidebar__instance-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  line-height: 1.1;
+}
+
+.sidebar__instance-vessel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

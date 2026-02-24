@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd:*)",
+      "Bash(cd \"C:/Users/ENS/dev/NaviSuite.RotvFlight/rotv-flight\" && npx tsc --noEmit 2>&1)",
+      "Bash(true:*)",
+      "Bash(cd /c/Users/ENS/dev/NaviSuite.RotvFlight/rotv-flight && yarn build 2>&1)"
+    ]
+  }
+}

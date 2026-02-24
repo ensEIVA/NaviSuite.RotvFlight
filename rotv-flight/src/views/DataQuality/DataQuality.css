@@ -1,0 +1,262 @@
+/* ==========================================================================
+   DataQuality View
+   ========================================================================== */
+
+.data-quality {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.view-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.view-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.view-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: var(--space-1) 0 0;
+}
+
+.dq__header-actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* --- Overview summary --- */
+.dq__overview {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+@media (max-width: 900px) {
+  .dq__overview { grid-template-columns: 1fr 1fr; }
+}
+
+.dq__summary-card {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.dq__summary-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.dq__summary-value {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  font-family: var(--font-family-mono);
+  color: var(--color-text-primary);
+}
+
+.dq__summary-value--ok       { color: var(--color-status-ok); }
+.dq__summary-value--warning  { color: var(--color-status-warning); }
+.dq__summary-value--critical { color: var(--color-status-critical); }
+
+/* --- Section heading --- */
+.dq__section-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--space-4);
+}
+
+/* --- Reports grid --- */
+.dq__reports {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* --- Individual report panel --- */
+.panel {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-subtle);
+  gap: var(--space-4);
+}
+
+.panel__title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+
+.panel__body {
+  padding: var(--space-4);
+}
+
+.dq__report-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.dq__report-time {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-family: var(--font-family-mono);
+}
+
+.dq__grade-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.dq__grade-letter {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  font-family: var(--font-family-mono);
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+/* --- Metrics table --- */
+.dq__metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.dq__metrics-table th {
+  padding: var(--space-2) var(--space-4);
+  text-align: left;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  background-color: var(--color-bg-elevated);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.dq__metric-row td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+  vertical-align: middle;
+}
+
+.dq__metric-row:last-child td {
+  border-bottom: none;
+}
+
+.dq__metric-row--warning {
+  background-color: rgba(245, 158, 11, 0.04);
+}
+
+.dq__metric-name {
+  color: var(--color-text-secondary);
+}
+
+.dq__metric-value {
+  font-family: var(--font-family-mono);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+.dq__metric-number {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.dq__metric-number--nominal  { color: var(--color-status-ok); }
+.dq__metric-number--warning  { color: var(--color-status-warning); }
+.dq__metric-number--critical { color: var(--color-status-critical); }
+.dq__metric-number--offline  { color: var(--color-status-offline); }
+.dq__metric-number--unknown  { color: var(--color-text-muted); }
+
+.dq__metric-unit {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.dq__metric-threshold {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-family: var(--font-family-mono);
+}
+
+.dq__metric-trend {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.dq__metric-trend--improving { color: var(--color-status-ok); }
+.dq__metric-trend--stable    { color: var(--color-text-secondary); }
+.dq__metric-trend--degrading { color: var(--color-status-warning); }
+
+/* --- Live quality panel --- */
+.dq__live-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.dq__live-metric {
+  display: grid;
+  grid-template-columns: 100px 1fr 100px;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.dq__live-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.dq__live-bar-wrap {
+  height: 8px;
+  background-color: var(--color-bg-elevated);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.dq__live-bar {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background-color: var(--color-status-ok);
+  transition: width var(--transition-slow);
+}
+
+.dq__live-bar--warning {
+  background-color: var(--color-status-warning);
+}
+
+.dq__live-value {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-align: right;
+}

@@ -1,0 +1,259 @@
+/* ==========================================================================
+   Settings View
+   ========================================================================== */
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 900px;
+}
+
+.view-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.view-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.view-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: var(--space-1) 0 0;
+}
+
+.settings__header-actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* --- Tabs --- */
+.settings__tabs {
+  display: flex;
+  gap: 2px;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-1);
+  width: fit-content;
+}
+
+.settings__tab {
+  padding: var(--space-2) var(--space-5);
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.settings__tab:hover {
+  background-color: var(--color-bg-overlay);
+  color: var(--color-text-primary);
+}
+
+.settings__tab--active {
+  background-color: var(--color-accent-subtle);
+  color: var(--color-accent-default);
+}
+
+/* --- Panel container --- */
+.settings__panel {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.settings__section-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.settings__section-sub {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+.settings__intro {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: var(--line-height-relaxed);
+}
+
+/* --- Field group --- */
+.settings__field-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+}
+
+.settings__field-group--wide {
+  grid-template-columns: 2fr 1fr;
+}
+
+.settings__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.settings__field label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  display: block;
+  margin: 0;
+}
+
+.settings__field input,
+.settings__field select {
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  padding: var(--space-3) var(--space-4);
+  width: 100%;
+  transition: border-color var(--transition-fast);
+}
+
+.settings__field input:focus,
+.settings__field select:focus {
+  outline: none;
+  border-color: var(--color-accent-default);
+  box-shadow: 0 0 0 2px var(--color-accent-subtle);
+}
+
+.settings__field-hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: var(--line-height-relaxed);
+}
+
+/* --- Saved state for save button --- */
+.btn-primary--saved {
+  background-color: var(--color-status-ok) !important;
+  border-color: var(--color-status-ok-border) !important;
+  color: #052e16 !important;
+}
+
+/* --- Toggle switches --- */
+.settings__toggles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.settings__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.settings__toggle input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.settings__toggle-slider {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-full);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.settings__toggle-slider::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background-color: var(--color-text-muted);
+  border-radius: var(--radius-full);
+  transition: transform var(--transition-fast), background-color var(--transition-fast);
+}
+
+.settings__toggle input:checked ~ .settings__toggle-slider {
+  background-color: var(--color-accent-subtle);
+  border-color: var(--color-accent-default);
+}
+
+.settings__toggle input:checked ~ .settings__toggle-slider::after {
+  transform: translateX(20px);
+  background-color: var(--color-accent-default);
+}
+
+.settings__toggle input:focus-visible ~ .settings__toggle-slider {
+  outline: 2px solid var(--color-accent-default);
+  outline-offset: 2px;
+}
+
+/* --- About section --- */
+.settings__about {
+  gap: var(--space-5);
+}
+
+.settings__about-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.settings__about-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-bg-elevated);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+}
+
+.settings__about-row dt {
+  color: var(--color-text-muted);
+}
+
+.settings__about-row dd {
+  font-family: var(--font-family-mono);
+  color: var(--color-text-primary);
+}
+
+.settings__about-actions {
+  display: flex;
+  gap: var(--space-3);
+}
