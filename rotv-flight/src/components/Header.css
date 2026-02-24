@@ -1,115 +1,135 @@
 /* ==========================================================================
-   Header Component
+   Topbar — OpenBridge light theme
+   Height: 48px, full width, surface background, bottom shadow
    ========================================================================== */
 
-.app-header {
+.topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: var(--header-height);
-  background-color: var(--color-bg-header);
-  border-bottom: 1px solid var(--color-border-subtle);
-  padding: 0 var(--space-6);
-  gap: var(--space-6);
-  position: sticky;
+  height: var(--topbar-height);
+  background-color: var(--color-bg-surface);
+  box-shadow: var(--shadow-flat);
+  padding: 0 12px;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: var(--z-sticky);
+  flex-shrink: 0;
+  gap: var(--space-4);
+}
+
+/* --- Left section --- */
+.topbar__left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   flex-shrink: 0;
 }
 
-/* --- Sections --- */
-.app-header__left,
-.app-header__right {
+/* --- Right section --- */
+.topbar__right {
   display: flex;
   align-items: center;
-  gap: var(--space-5);
-  flex: 1;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
-.app-header__right {
-  justify-content: flex-end;
-}
-
-.app-header__centre {
+/* --- Icon buttons --- */
+.topbar__icon-btn {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: var(--topbar-height);
+  height: var(--topbar-height);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-button);
+  color: var(--color-text-neutral);
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
   flex-shrink: 0;
 }
 
+.topbar__icon-btn:hover {
+  background-color: var(--color-indent-bg);
+  border-color: var(--color-indent-border);
+  color: var(--color-text-active);
+}
+
+.topbar__icon-btn:focus-visible {
+  outline: 2px solid var(--color-accent-default);
+  outline-offset: 2px;
+}
+
+/* Alert button — slightly larger touch target visual indication */
+.topbar__icon-btn--alert {
+  position: relative;
+}
+
+/* --- Icon SVG size --- */
+.topbar__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* --- Ship icon --- */
+.topbar__ship-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--color-text-neutral);
+  flex-shrink: 0;
+}
+
+.topbar__ship-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* --- App name --- */
+.topbar__app-name {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-active);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  padding-left: 4px;
+}
+
+/* --- Button group (alerts) --- */
+.topbar__btn-group {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
 /* --- Vertical divider --- */
-.app-header__divider {
+.topbar__divider {
+  display: block;
   width: 1px;
   height: 24px;
-  background-color: var(--color-border-subtle);
+  background-color: var(--color-border-divider);
+  margin: 0 4px;
+  flex-shrink: 0;
 }
 
-/* --- Mission info --- */
-.app-header__mission,
-.app-header__phase {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.app-header__mission-label,
-.app-header__phase-label,
-.app-header__utc-label {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  line-height: 1;
-}
-
-.app-header__mission-name {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-  line-height: 1.2;
-  max-width: 200px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* --- Flight phase chip --- */
-.app-header__phase-value {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  line-height: 1.2;
-  color: var(--color-text-secondary);
-}
-
-.app-header__phase-value--survey {
-  color: var(--color-status-ok);
-}
-
-.app-header__phase-value--pre_flight,
-.app-header__phase-value--launch,
-.app-header__phase-value--recovery {
-  color: var(--color-status-info);
-}
-
-.app-header__phase-value--standby,
-.app-header__phase-value--post_flight {
-  color: var(--color-text-muted);
-}
-
-/* --- UTC clock --- */
-.app-header__utc {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  align-items: flex-end;
-}
-
-.app-header__utc-time {
+/* --- UTC Clock --- */
+.topbar__clock {
   font-family: var(--font-family-mono);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-  letter-spacing: 0.04em;
-  line-height: 1.2;
+  color: var(--color-text-active);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  padding: 0 8px;
+  line-height: 1;
 }

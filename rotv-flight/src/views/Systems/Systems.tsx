@@ -1,61 +1,188 @@
-import { useNavigate } from "react-router-dom";
-import { useFlow, type SystemEntry } from "../../context/FlowContext";
-import "./Systems.css";
-import { ObcCard } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/card/card";
-import { ObcButton } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/button/button";
-import {
-  AppShell,
-  AppShellFooter,
-  AppShellHeader,
-  AppShellMain,
-} from "@mantine/core";
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useFlow, type SystemEntry } from '../../context/FlowContext';
+import './Systems.css';
+
 // ---------------------------------------------------------------------------
-// Static system catalogue — plausible dummy data
+// Image asset constants (Figma — valid ~7 days)
 // ---------------------------------------------------------------------------
 
-const SYSTEM_CATALOGUE: SystemEntry[] = [
+const IMG_SCANFISH = 'https://www.figma.com/api/mcp/asset/dab2b9d0-e054-44ef-9da0-8c09e0526520';
+const IMG_VIPERFISH = 'https://www.figma.com/api/mcp/asset/15ddf60a-b705-4368-b9d2-5d7189eabf9d';
+const IMG_WINCH     = 'https://www.figma.com/api/mcp/asset/3f376ace-05ae-4a12-99c5-c15508ba5c6e';
+
+// ---------------------------------------------------------------------------
+// Static system catalogue
+// ---------------------------------------------------------------------------
+
+interface SystemDef {
+  entry: SystemEntry;
+  displayName: string;
+  image: string;
+  hasFirmwareUpdate: boolean;
+  /** Initial connected state — in a real app this would come from the network */
+  initiallyConnected: boolean;
+}
+
+const SYSTEM_CATALOGUE: SystemDef[] = [
   {
-    id: "scanfish",
-    name: "ScanFish",
-    type: "Towed Undulating Vehicle",
-    ip: "192.168.1.10",
-    firmware: "v4.12.3",
-    signal: -58,
+    entry: {
+      id: 'scanfish',
+      name: 'ScanFish Rocio',
+      type: 'Towed Undulating Vehicle',
+      ip: '192.168.1.10',
+      firmware: 'v4.12.3',
+      signal: -58,
+    },
+    displayName: 'ScanFish Rocio',
+    image: IMG_SCANFISH,
+    hasFirmwareUpdate: true,
+    initiallyConnected: true,
   },
   {
-    id: "viperfish",
-    name: "Viperfish",
-    type: "Deep-Tow Sensor Platform",
-    ip: "192.168.1.24",
-    firmware: "v2.8.1",
-    signal: -71,
+    entry: {
+      id: 'viperfish',
+      name: 'ViperFish',
+      type: 'Deep-Tow Sensor Platform',
+      ip: '192.168.1.24',
+      firmware: 'v2.8.1',
+      signal: -71,
+    },
+    displayName: 'ViperFish',
+    image: IMG_VIPERFISH,
+    hasFirmwareUpdate: false,
+    initiallyConnected: false,
   },
   {
-    id: "winch",
-    name: "Winch",
-    type: "Tow Winch Controller",
-    ip: "192.168.1.50",
-    firmware: "v1.6.0",
-    signal: -44,
+    entry: {
+      id: 'winch',
+      name: 'Winch',
+      type: 'Tow Winch Controller',
+      ip: '192.168.1.50',
+      firmware: 'v1.6.0',
+      signal: -44,
+    },
+    displayName: 'Winch',
+    image: IMG_WINCH,
+    hasFirmwareUpdate: false,
+    initiallyConnected: true,
   },
 ];
 
 // ---------------------------------------------------------------------------
-// Helper — signal strength label
+// SVG icons
 // ---------------------------------------------------------------------------
 
-function signalLabel(dBm: number): string {
-  if (dBm >= -60) return "Excellent";
-  if (dBm >= -70) return "Good";
-  if (dBm >= -80) return "Fair";
-  return "Poor";
+function IconChevronRight() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      className="card-chevron-icon"
+    >
+      <path
+        d="M6 4L10 8L6 12"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
 }
 
-function signalClass(dBm: number): string {
-  if (dBm >= -60) return "signal--excellent";
-  if (dBm >= -70) return "signal--good";
-  if (dBm >= -80) return "signal--fair";
-  return "signal--poor";
+function IconSettings() {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      className="btn-icon"
+    >
+      <circle cx="10" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
+      <path
+        d="M10 3V5M10 15V17M3 10H5M15 10H17M4.92893 4.92893L6.34315 6.34315M13.6569 13.6569L15.0711 15.0711M4.92893 15.0711L6.34315 13.6569M13.6569 6.34315L15.0711 4.92893"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function IconDownload() {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      className="btn-icon"
+    >
+      <path
+        d="M10 3V13M10 13L6.5 9.5M10 13L13.5 9.5"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M3 15H17"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function IconCheck() {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      className="btn-icon"
+    >
+      <polyline
+        points="4,10 8,14 16,6"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Connection badge sub-component
+// ---------------------------------------------------------------------------
+
+interface ConnectionBadgeProps {
+  connected: boolean;
+}
+
+function ConnectionBadge({ connected }: ConnectionBadgeProps) {
+  if (connected) {
+    return (
+      <span className="connection-badge connection-badge--connected" aria-label="Connected">
+        <span className="connection-badge__indicator" aria-hidden="true" />
+        Connected
+      </span>
+    );
+  }
+  return (
+    <span className="connection-badge connection-badge--disconnected" aria-label="Disconnected">
+      <span className="connection-badge__indicator" aria-hidden="true">—</span>
+      Disconnected
+    </span>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -63,138 +190,117 @@ function signalClass(dBm: number): string {
 // ---------------------------------------------------------------------------
 
 interface SystemCardProps {
-  system: SystemEntry;
+  def: SystemDef;
   isConnected: boolean;
   isSelected: boolean;
-  onConnect: () => void;
-  onDisconnect: () => void;
-  onSelect: () => void;
-  onDeselect: () => void;
+  onToggleConnect: () => void;
+  onToggleSelect: () => void;
 }
 
 function SystemCard({
-  system,
+  def,
   isConnected,
   isSelected,
-  onConnect,
-  onDisconnect,
-  onSelect,
-  onDeselect,
+  onToggleConnect,
+  onToggleSelect,
 }: SystemCardProps) {
-  const canSelect = isConnected;
+  const cardClasses = [
+    'system-card',
+    isConnected ? 'system-card--connected' : 'system-card--disconnected',
+    isSelected ? 'system-card--selected' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
-    <ObcCard>
-      <h3 slot="title">{system.name}</h3>
-      <div>
-        {isConnected ? (
-          <label>Connected</label>
-        ) : (
-          <label slot="footer" onClick={onConnect}>
-            Disconnected
-          </label>
+    <article className={cardClasses} aria-label={`${def.displayName} system card`}>
+      {/* Card heading row */}
+      <div className="card-heading">
+        <span className="card-label">{def.displayName}</span>
+        <span className="card-chevron" aria-hidden="true">
+          <IconChevronRight />
+        </span>
+      </div>
+
+      {/* Divider */}
+      <hr className="card-divider" />
+
+      {/* Status row: connection badge */}
+      <div className="card-status-row">
+        <ConnectionBadge connected={isConnected} />
+      </div>
+
+      {/* System name */}
+      <p className="system-name">{def.displayName}</p>
+
+      {/* Image area */}
+      <div className="card-image">
+        <img
+          src={def.image}
+          alt={def.displayName}
+          onError={(e) => {
+            // Fallback placeholder if Figma URL expires
+            const target = e.currentTarget as HTMLImageElement;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent && !parent.querySelector('.card-image-fallback')) {
+              const fallback = document.createElement('div');
+              fallback.className = 'card-image-fallback';
+              fallback.textContent = def.displayName;
+              parent.appendChild(fallback);
+            }
+          }}
+        />
+      </div>
+
+      {/* Divider */}
+      <hr className="card-divider" />
+
+      {/* Footer actions */}
+      <div className="card-footer">
+        {/* Settings icon button — clicking toggles connection state */}
+        <button
+          className="card-btn card-btn--icon"
+          type="button"
+          aria-label={`Settings for ${def.displayName}`}
+          onClick={onToggleConnect}
+          title={isConnected ? `Disconnect ${def.displayName}` : `Connect ${def.displayName}`}
+        >
+          <IconSettings />
+        </button>
+
+        {/* Firmware Update button — only for systems that have an update pending */}
+        {def.hasFirmwareUpdate && (
+          <button
+            className="card-btn card-btn--firmware"
+            type="button"
+            aria-label={`Firmware update available for ${def.displayName}`}
+          >
+            <IconDownload />
+            Firmware Update
+          </button>
         )}
 
-        <div className="systems-card__footer">
-          <ObcButton
-            variant={isSelected ? "raised" : "normal"}
-            onClick={isSelected ? onDeselect : onSelect}
-          >
-            {isSelected ? "Selected" : "Select"}
-          </ObcButton>
-        </div>
+        {/* Select / Deselect button */}
+        <button
+          className={`card-btn card-btn--select${isSelected ? ' card-btn--selected' : ''}`}
+          type="button"
+          onClick={onToggleSelect}
+          disabled={!isConnected}
+          aria-label={isSelected ? `Deselect ${def.displayName}` : `Select ${def.displayName}`}
+          aria-pressed={isSelected}
+          title={!isConnected ? 'Connect this system first' : undefined}
+        >
+          {isSelected && <IconCheck />}
+          {isSelected ? 'Selected' : 'Select'}
+        </button>
       </div>
-    </ObcCard>
-    // <article
-    //   className={`system-card${isSelected ? ' system-card--selected' : ''}${isConnected ? ' system-card--connected' : ''}`}
-    //   aria-label={`${system.name} system card`}
-    // >
-    //   {/* Card header */}
-    //   <div className="system-card__header">
-    //     <div className="system-card__identity">
-    //       <h2 className="system-card__name">{system.name}</h2>
-    //       <span className="system-card__type">{system.type}</span>
-    //     </div>
-    //     <div className="system-card__status-indicator" aria-label={isConnected ? 'Connected' : 'Disconnected'}>
-    //       <span
-    //         className={`system-card__status-dot ${isConnected ? 'system-card__status-dot--connected' : 'system-card__status-dot--disconnected'}`}
-    //         aria-hidden="true"
-    //       />
-    //       <span className="system-card__status-label">
-    //         {isConnected ? 'Connected' : 'Disconnected'}
-    //       </span>
-    //     </div>
-    //   </div>
-
-    //   {/* Card body */}
-    //   <div className="system-card__body">
-    //     <dl className="system-card__details">
-    //       <div className="system-card__detail-row">
-    //         <dt>IP Address</dt>
-    //         <dd><code>{system.ip}</code></dd>
-    //       </div>
-    //       <div className="system-card__detail-row">
-    //         <dt>Firmware</dt>
-    //         <dd>{system.firmware}</dd>
-    //       </div>
-    //       <div className="system-card__detail-row">
-    //         <dt>Signal</dt>
-    //         <dd>
-    //           <span className={`system-card__signal ${signalClass(system.signal)}`}>
-    //             {system.signal} dBm — {signalLabel(system.signal)}
-    //           </span>
-    //         </dd>
-    //       </div>
-    //     </dl>
-    //   </div>
-
-    //   {/* Card footer */}
-    //   <div className="system-card__footer">
-    //     {isConnected ? (
-    //       <button
-    //         className="btn-secondary system-card__btn"
-    //         onClick={onDisconnect}
-    //         aria-label={`Disconnect ${system.name}`}
-    //       >
-    //         Disconnect
-    //       </button>
-    //     ) : (
-    //       <button
-    //         className="btn-primary system-card__btn"
-    //         onClick={onConnect}
-    //         aria-label={`Connect to ${system.name}`}
-    //       >
-    //         Connect
-    //       </button>
-    //     )}
-
-    //     {isSelected ? (
-    //       <button
-    //         className="btn-warning system-card__btn"
-    //         onClick={onDeselect}
-    //         disabled={!canSelect}
-    //         aria-label={`Deselect ${system.name}`}
-    //       >
-    //         Deselect
-    //       </button>
-    //     ) : (
-    //       <button
-    //         className={`system-card__btn ${canSelect ? 'btn-success' : 'btn-secondary'}`}
-    //         onClick={onSelect}
-    //         disabled={!canSelect}
-    //         aria-label={canSelect ? `Select ${system.name}` : `Connect ${system.name} first`}
-    //         title={canSelect ? undefined : 'Connect to this system first'}
-    //       >
-    //         Select
-    //       </button>
-    //     )}
-    //   </div>
-    // </article>
+    </article>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Systems view
+// Systems view — Step 1
 // ---------------------------------------------------------------------------
 
 export function Systems() {
@@ -210,83 +316,95 @@ export function Systems() {
 
   const navigate = useNavigate();
 
-  // Step 2 is unlocked when at least one system is both connected AND selected
+  // Seed the initial connection state from the catalogue on first mount.
+  // ScanFish Rocio and Winch start as Connected per the Figma design.
+  // This only runs once and only adds systems not already in the connected list.
+  useEffect(() => {
+    SYSTEM_CATALOGUE.forEach((def) => {
+      if (def.initiallyConnected) {
+        const alreadyConnected = connectedSystems.some((s) => s.id === def.entry.id);
+        if (!alreadyConnected) {
+          connectSystem(def.entry);
+        }
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // The "Next" button is enabled when at least one system is both connected AND selected
   const canProceed = selectedSystems.some((sel) =>
     connectedSystems.some((con) => con.id === sel.id),
   );
 
   function handleProceed() {
+    if (!canProceed) return;
     completeStep1();
-    navigate("/preflight");
+    navigate('/preflight');
+  }
+
+  function handleToggleConnect(def: SystemDef) {
+    const isConnected = connectedSystems.some((s) => s.id === def.entry.id);
+    if (isConnected) {
+      disconnectSystem(def.entry.id);
+    } else {
+      connectSystem(def.entry);
+    }
+  }
+
+  function handleToggleSelect(def: SystemDef) {
+    const isConnected = connectedSystems.some((s) => s.id === def.entry.id);
+    if (!isConnected) return; // Cannot select a disconnected system
+    const isSelected = selectedSystems.some((s) => s.id === def.entry.id);
+    if (isSelected) {
+      deselectSystem(def.entry.id);
+    } else {
+      selectSystem(def.entry);
+    }
   }
 
   return (
     <div className="systems-view">
-      <header className="view-header systems-view__header">
-        <div>
-          <h1 className="view-title">Systems Available on Network</h1>
-          <h2>Select systems to use for operation</h2>
-        </div>
-        <div className="systems-view__header-meta">
-          <span className="systems-view__count">
-            {connectedSystems.length} connected · {selectedSystems.length}{" "}
-            selected
-          </span>
-        </div>
-      </header>
+      {/* Page header */}
+      <div className="systems-view__header">
+        <h1 className="systems-view__title">Systems available on your network</h1>
+        <p className="systems-view__subtitle">Select systems to use for operation</p>
+      </div>
+
       {/* System cards grid */}
       <section className="systems-view__grid" aria-label="Available systems">
-        {SYSTEM_CATALOGUE.map((system) => {
-          const isConnected = connectedSystems.some((s) => s.id === system.id);
-          const isSelected = selectedSystems.some((s) => s.id === system.id);
+        {SYSTEM_CATALOGUE.map((def) => {
+          const isConnected = connectedSystems.some((s) => s.id === def.entry.id);
+          const isSelected = selectedSystems.some((s) => s.id === def.entry.id);
 
           return (
             <SystemCard
-              key={system.id}
-              system={system}
+              key={def.entry.id}
+              def={def}
               isConnected={isConnected}
               isSelected={isSelected}
-              onConnect={() => connectSystem(system)}
-              onDisconnect={() => disconnectSystem(system.id)}
-              onSelect={() => selectSystem(system)}
-              onDeselect={() => deselectSystem(system.id)}
+              onToggleConnect={() => handleToggleConnect(def)}
+              onToggleSelect={() => handleToggleSelect(def)}
             />
           );
         })}
       </section>
 
-      {/* Selected systems summary */}
-      {selectedSystems.length > 0 && (
-        <section
-          className="systems-view__selection-summary"
-          aria-live="polite"
-          aria-label="Selected systems"
+      {/* "Next" button — bottom-right of content area */}
+      <div className="systems-view__actions">
+        <button
+          className={`systems-view__next-btn${canProceed ? ' systems-view__next-btn--enabled' : ''}`}
+          type="button"
+          onClick={handleProceed}
+          disabled={!canProceed}
+          aria-label={
+            canProceed
+              ? 'Proceed to Pre-flight checks'
+              : 'Select at least one connected system to continue'
+          }
         >
-          <span className="systems-view__selection-label">
-            Selected for mission:
-          </span>
-          <ul className="systems-view__selection-list" role="list">
-            {selectedSystems.map((s) => (
-              <li key={s.id} className="systems-view__selection-tag">
-                {s.name}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-      {/* Proceed CTA */}
-      {canProceed && (
-        <div className="systems-view__cta" role="status">
-          <p>hehe</p>
-          <button
-            className="btn-primary btn-lg systems-view__proceed-btn"
-            onClick={handleProceed}
-            aria-label="Proceed to Pre-flight checks"
-          >
-            Proceed to Pre-flight &rarr;
-          </button>
-        </div>
-      )}
+          Next
+        </button>
+      </div>
     </div>
   );
 }
