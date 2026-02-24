@@ -1,6 +1,7 @@
 import { RouterProvider } from 'react-router-dom';
 import { FlowProvider } from './context/FlowContext';
 import { router } from './router';
+import { MantineProvider } from '@mantine/core';
 
 /**
  * App — root React component.
@@ -12,7 +13,10 @@ import { router } from './router';
 export default function App() {
   return (
     <FlowProvider>
-      <RouterProvider router={router} />
+      <MantineProvider>
+
+        <RouterProvider router={router} />
+      </MantineProvider>
     </FlowProvider>
   );
 }

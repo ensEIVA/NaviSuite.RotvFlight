@@ -3,6 +3,12 @@ import { useFlow, type SystemEntry } from "../../context/FlowContext";
 import "./Systems.css";
 import { ObcCard } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/card/card";
 import { ObcButton } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/button/button";
+import {
+  AppShell,
+  AppShellFooter,
+  AppShellHeader,
+  AppShellMain,
+} from "@mantine/core";
 // ---------------------------------------------------------------------------
 // Static system catalogue — plausible dummy data
 // ---------------------------------------------------------------------------
@@ -90,8 +96,6 @@ function SystemCard({
         )}
 
         <div className="systems-card__footer">
-
-
           <ObcButton
             variant={isSelected ? "raised" : "normal"}
             onClick={isSelected ? onDeselect : onSelect}
@@ -222,7 +226,6 @@ export function Systems() {
         <div>
           <h1 className="view-title">Systems Available on Network</h1>
           <h2>Select systems to use for operation</h2>
-          
         </div>
         <div className="systems-view__header-meta">
           <span className="systems-view__count">
@@ -231,7 +234,6 @@ export function Systems() {
           </span>
         </div>
       </header>
-
       {/* System cards grid */}
       <section className="systems-view__grid" aria-label="Available systems">
         {SYSTEM_CATALOGUE.map((system) => {
@@ -272,10 +274,10 @@ export function Systems() {
           </ul>
         </section>
       )}
-
       {/* Proceed CTA */}
       {canProceed && (
         <div className="systems-view__cta" role="status">
+          <p>hehe</p>
           <button
             className="btn-primary btn-lg systems-view__proceed-btn"
             onClick={handleProceed}

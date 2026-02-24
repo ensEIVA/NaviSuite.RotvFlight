@@ -1,9 +1,15 @@
-import { useState, useEffect } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Header } from '../components/Header';
-import { useFlow } from '../context/FlowContext';
-import type { FlightPhase, SystemStatus } from '../types';
-import './AppLayout.css';
+import { useState, useEffect } from "react";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { Header } from "../components/Header";
+import { useFlow } from "../context/FlowContext";
+import type { FlightPhase, SystemStatus } from "../types";
+import "./AppLayout.css";
+import {
+  AppShell,
+  AppShellFooter,
+  AppShellHeader,
+  AppShellMain,
+} from "@mantine/core";
 
 // ---------------------------------------------------------------------------
 // Step definitions
@@ -16,15 +22,15 @@ interface Step {
 }
 
 const STEPS: Step[] = [
-  { number: 1, label: 'Systems',    path: '/'          },
-  { number: 2, label: 'Pre-flight', path: '/preflight' },
-  { number: 3, label: 'Dashboard',  path: '/dashboard' },
+  { number: 1, label: "Systems", path: "/" },
+  { number: 2, label: "Pre-flight", path: "/preflight" },
+  { number: 3, label: "Dashboard", path: "/dashboard" },
 ];
 
 // Derive the active step number from the current pathname
 function pathToStep(pathname: string): 1 | 2 | 3 {
-  if (pathname.startsWith('/preflight')) return 2;
-  if (pathname.startsWith('/dashboard')) return 3;
+  if (pathname.startsWith("/preflight")) return 2;
+  if (pathname.startsWith("/dashboard")) return 3;
   return 1;
 }
 
@@ -34,8 +40,8 @@ function pathToStep(pathname: string): 1 | 2 | 3 {
 
 function StepperNav() {
   const { step1Complete, step2Complete } = useFlow();
-  const location  = useLocation();
-  const navigate  = useNavigate();
+  const location = useLocation();
+  const navigate = useNavigate();
   const activeStep = pathToStep(location.pathname);
 
   function isUnlocked(step: Step): boolean {
@@ -61,46 +67,50 @@ function StepperNav() {
       <ol className="stepper-nav__list" role="list">
         {STEPS.map((step, idx) => {
           const unlocked = isUnlocked(step);
-          const complete  = isComplete(step);
-          const active    = activeStep === step.number;
+          const complete = isComplete(step);
+          const active = activeStep === step.number;
 
           return (
             <li key={step.number} className="stepper-nav__item">
               {/* Connector line between steps (not before step 1) */}
               {idx > 0 && (
                 <span
-                  className={`stepper-nav__connector ${isUnlocked(STEPS[idx]) ? 'stepper-nav__connector--unlocked' : ''}`}
+                  className={`stepper-nav__connector ${isUnlocked(STEPS[idx]) ? "stepper-nav__connector--unlocked" : ""}`}
                   aria-hidden="true"
                 />
               )}
 
               <button
                 className={[
-                  'stepper-nav__step',
-                  active    ? 'stepper-nav__step--active'    : '',
-                  complete  ? 'stepper-nav__step--complete'  : '',
-                  !unlocked ? 'stepper-nav__step--locked'    : '',
-                  unlocked && !active && !complete ? 'stepper-nav__step--unlocked' : '',
-                ].filter(Boolean).join(' ')}
+                  "stepper-nav__step",
+                  active ? "stepper-nav__step--active" : "",
+                  complete ? "stepper-nav__step--complete" : "",
+                  !unlocked ? "stepper-nav__step--locked" : "",
+                  unlocked && !active && !complete
+                    ? "stepper-nav__step--unlocked"
+                    : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
                 onClick={() => handleStepClick(step)}
                 disabled={!unlocked}
-                aria-current={active ? 'step' : undefined}
+                aria-current={active ? "step" : undefined}
                 aria-label={
                   !unlocked
                     ? `Step ${step.number}: ${step.label} — locked`
                     : complete
-                    ? `Step ${step.number}: ${step.label} — complete`
-                    : active
-                    ? `Step ${step.number}: ${step.label} — current`
-                    : `Step ${step.number}: ${step.label}`
+                      ? `Step ${step.number}: ${step.label} — complete`
+                      : active
+                        ? `Step ${step.number}: ${step.label} — current`
+                        : `Step ${step.number}: ${step.label}`
                 }
               >
                 <span className="stepper-nav__circle" aria-hidden="true">
                   {!unlocked
-                    ? '\uD83D\uDD12'   /* lock emoji */
+                    ? "\uD83D\uDD12" /* lock emoji */
                     : complete
-                    ? '\u2713'          /* checkmark */
-                    : step.number}
+                      ? "\u2713" /* checkmark */
+                      : step.number}
                 </span>
                 <span className="stepper-nav__label">{step.label}</span>
               </button>
@@ -124,32 +134,47 @@ export function AppLayout() {
     return () => clearInterval(id);
   }, []);
 
-  const systemStatus: SystemStatus = 'nominal';
-  const flightPhase: FlightPhase   = 'pre_flight';
-  const missionName                = 'NS-2024-Area7-Line04';
+  const systemStatus: SystemStatus = "nominal";
+  const flightPhase: FlightPhase = "pre_flight";
+  const missionName = "NS-2024-Area7-Line04";
 
   function handleEmergencyStop() {
-    console.warn('[ROTV Flight] EMERGENCY STOP ACTIVATED');
-    window.alert('EMERGENCY STOP command sent.');
+    console.warn("[ROTV Flight] EMERGENCY STOP ACTIVATED");
+    window.alert("EMERGENCY STOP command sent.");
   }
 
   return (
     <div className="app-layout">
-      <div className="app-layout__body">
-        <Header
-          systemStatus={systemStatus}
-          flightPhase={flightPhase}
-          missionName={missionName}
-          utcTime={utcTime}
-          onEmergencyStop={handleEmergencyStop}
-        />
-
-        <StepperNav />
-
-        <main className="app-layout__main" id="main-content" tabIndex={-1}>
-          <Outlet />
-        </main>
-      </div>
+      <AppShell
+        header={{ height: "48px" }}
+        navbar={{
+          width: 100,
+          breakpoint: "sm",
+        }}
+        footer={{
+          height: 52,
+        }}
+      >
+        <AppShellHeader>
+          <Header
+            systemStatus={systemStatus}
+            flightPhase={flightPhase}
+            missionName={missionName}
+            utcTime={utcTime}
+            onEmergencyStop={handleEmergencyStop}
+          />
+        </AppShellHeader>
+        <div className="app-layout__body">
+          {/* <main className="app-layout__main" id="main-content" tabIndex={-1}> */}
+          <AppShellMain>
+            <Outlet />
+          </AppShellMain>
+          {/* </main> */}
+        </div>
+        <AppShellFooter>
+          <StepperNav />
+        </AppShellFooter>
+      </AppShell>
     </div>
   );
 }
