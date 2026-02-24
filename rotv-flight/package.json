@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mantine/core": "^8.3.15",
+    "@mantine/hooks": "^8.3.15",
     "@ocean-industries-concept-lab/openbridge-webcomponents-react": "^0.0.20260223174807",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
