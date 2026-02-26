@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useFlowStore } from '../../stores/useFlowStore';
-import { useSystemsStore } from '../../stores/useSystemsStore';
-import mockGetSystemsService from '../../services/mockGetSystemsService';
-import type { SystemEntry } from '../../types';
-import './Systems.css';
-
-
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useFlowStore } from "../../stores/useFlowStore";
+import { useSystemsStore } from "../../stores/useSystemsStore";
+import mockGetSystemsService from "../../services/mockGetSystemsService";
+import { ObcCard } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/card/card";
+import { ObcStatusIndicator } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/status-indicator/status-indicator";
+import type { SystemEntry } from "../../types";
+import "./Systems.css";
+import { ObcIconButton } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/icon-button/icon-button";
+import { ObcButton } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/button/button";
 
 // ---------------------------------------------------------------------------
 //  Static system catalogue
@@ -20,8 +22,6 @@ export interface SystemDef {
   /** Initial connected state — in a real app this would come from the network */
   initiallyConnected: boolean;
 }
-
-
 
 // ---------------------------------------------------------------------------
 // SVG icons
@@ -56,7 +56,14 @@ function IconSettings() {
       aria-hidden="true"
       className="btn-icon"
     >
-      <circle cx="10" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
+      <circle
+        cx="10"
+        cy="10"
+        r="2.5"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        fill="none"
+      />
       <path
         d="M10 3V5M10 15V17M3 10H5M15 10H17M4.92893 4.92893L6.34315 6.34315M13.6569 13.6569L15.0711 15.0711M4.92893 15.0711L6.34315 13.6569M13.6569 6.34315L15.0711 4.92893"
         stroke="currentColor"
@@ -125,15 +132,23 @@ interface ConnectionBadgeProps {
 function ConnectionBadge({ connected }: ConnectionBadgeProps) {
   if (connected) {
     return (
-      <span className="connection-badge connection-badge--connected" aria-label="Connected">
+      <span
+        className="connection-badge connection-badge--connected"
+        aria-label="Connected"
+      >
         <span className="connection-badge__indicator" aria-hidden="true" />
         Connected
       </span>
     );
   }
   return (
-    <span className="connection-badge connection-badge--disconnected" aria-label="Disconnected">
-      <span className="connection-badge__indicator" aria-hidden="true">—</span>
+    <span
+      className="connection-badge connection-badge--disconnected"
+      aria-label="Disconnected"
+    >
+      <span className="connection-badge__indicator" aria-hidden="true">
+        —
+      </span>
       Disconnected
     </span>
   );
@@ -159,15 +174,18 @@ function SystemCard({
   onToggleSelect,
 }: SystemCardProps) {
   const cardClasses = [
-    'system-card',
-    isConnected ? 'system-card--connected' : 'system-card--disconnected',
-    isSelected ? 'system-card--selected' : '',
+    "system-card",
+    isConnected ? "system-card--connected" : "system-card--disconnected",
+    isSelected ? "system-card--selected" : "",
   ]
     .filter(Boolean)
-    .join(' ');
+    .join(" ");
 
   return (
-    <article className={cardClasses} aria-label={`${def.displayName} system card`}>
+    <article
+      className={cardClasses}
+      aria-label={`${def.displayName} system card`}
+    >
       {/* Card heading row */}
       <div className="card-heading">
         <span className="card-label">{def.displayName}</span>
@@ -195,11 +213,11 @@ function SystemCard({
           onError={(e) => {
             // Fallback placeholder if Figma URL expires
             const target = e.currentTarget as HTMLImageElement;
-            target.style.display = 'none';
+            target.style.display = "none";
             const parent = target.parentElement;
-            if (parent && !parent.querySelector('.card-image-fallback')) {
-              const fallback = document.createElement('div');
-              fallback.className = 'card-image-fallback';
+            if (parent && !parent.querySelector(".card-image-fallback")) {
+              const fallback = document.createElement("div");
+              fallback.className = "card-image-fallback";
               fallback.textContent = def.displayName;
               parent.appendChild(fallback);
             }
@@ -218,7 +236,11 @@ function SystemCard({
           type="button"
           aria-label={`Settings for ${def.displayName}`}
           onClick={onToggleConnect}
-          title={isConnected ? `Disconnect ${def.displayName}` : `Connect ${def.displayName}`}
+          title={
+            isConnected
+              ? `Disconnect ${def.displayName}`
+              : `Connect ${def.displayName}`
+          }
         >
           <IconSettings />
         </button>
@@ -237,16 +259,20 @@ function SystemCard({
 
         {/* Select / Deselect button */}
         <button
-          className={`card-btn card-btn--select${isSelected ? ' card-btn--selected' : ''}`}
+          className={`card-btn card-btn--select${isSelected ? " card-btn--selected" : ""}`}
           type="button"
           onClick={onToggleSelect}
           disabled={!isConnected}
-          aria-label={isSelected ? `Deselect ${def.displayName}` : `Select ${def.displayName}`}
+          aria-label={
+            isSelected
+              ? `Deselect ${def.displayName}`
+              : `Select ${def.displayName}`
+          }
           aria-pressed={isSelected}
-          title={!isConnected ? 'Connect this system first' : undefined}
+          title={!isConnected ? "Connect this system first" : undefined}
         >
           {isSelected && <IconCheck />}
-          {isSelected ? 'Selected' : 'Select'}
+          {isSelected ? "Selected" : "Select"}
         </button>
       </div>
     </article>
@@ -293,7 +319,7 @@ export function Systems() {
   function handleProceed() {
     if (!canProceed) return;
     completeStep1();
-    navigate('/preflight');
+    navigate("/preflight");
   }
 
   function handleToggleConnect(def: SystemDef) {
@@ -319,8 +345,12 @@ export function Systems() {
   return (
     <div className="systems-view">
       <div className="systems-view__header">
-        <h1 className="systems-view__title">Systems available on your network</h1>
-        <p className="systems-view__subtitle">Select systems to use for operation</p>
+        <h1 className="systems-view__title">
+          Systems available on your network
+        </h1>
+        <p className="systems-view__subtitle">
+          Select systems to use for operation
+        </p>
       </div>
 
       <section className="systems-view__grid" aria-label="Available systems">
@@ -328,18 +358,82 @@ export function Systems() {
           <p className="systems-view__loading">Scanning network...</p>
         ) : (
           catalogue.map((def) => {
-            const isConnected = connectedSystems.some((s) => s.id === def.entry.id);
-            const isSelected = selectedSystems.some((s) => s.id === def.entry.id);
+            const isConnected = connectedSystems.some(
+              (s) => s.id === def.entry.id,
+            );
+            const isSelected = selectedSystems.some(
+              (s) => s.id === def.entry.id,
+            );
 
             return (
-              <SystemCard
+              <ObcCard
+                title={def.displayName}
                 key={def.entry.id}
-                def={def}
-                isConnected={isConnected}
-                isSelected={isSelected}
-                onToggleConnect={() => handleToggleConnect(def)}
-                onToggleSelect={() => handleToggleSelect(def)}
-              />
+                className="systems-card"
+              >
+                <div slot="title">{def.displayName}</div>
+                <div className="systems-card__content">
+                  {isConnected ? (
+                    <span className="systems-card__status-label connected">
+                      <ObcStatusIndicator status="running">
+                        Connected
+                      </ObcStatusIndicator>
+                    </span>
+                  ) : (
+                    <span className="systems-card__status-label disconnected">
+                      <ObcStatusIndicator status="inactive">
+                        Disconnected
+                      </ObcStatusIndicator>
+                    </span>
+                  )}
+
+                  <div className="systems-card__image">
+                    <img
+                      src={def.image}
+                      alt={def.displayName}
+                      onError={(e) => {
+                        // Fallback placeholder if no url!
+                        const target = e.currentTarget as HTMLImageElement;
+                        target.style.display = "none";
+                        const parent = target.parentElement;
+                        if (
+                          parent &&
+                          !parent.querySelector(".systems-card__image-fallback")
+                        ) {
+                          const fallback = document.createElement("div");
+                          fallback.className = "systems-card__image-fallback";
+                          fallback.textContent = def.displayName;
+                          parent.appendChild(fallback);
+                        }
+                      }}
+                    />
+                  </div>
+
+                  <div className="systems-card__footer">
+                    <span className="left">
+                      <ObcIconButton></ObcIconButton>
+                      <ObcButton>Firmware Update</ObcButton>
+                    </span>
+                    <span className="right">
+                      <ObcButton
+                      variant={isSelected ? "raised" : "normal"}
+                      onClick={() => handleToggleSelect(def)}
+                      disabled={!isConnected}
+                      >
+                        {isSelected ? "Selected" : "Select"}
+                      </ObcButton>
+                    </span>
+                  </div>
+                </div>
+              </ObcCard>
+              // <SystemCard
+              //   key={def.entry.id}
+              //   def={def}
+              //   isConnected={isConnected}
+              //   isSelected={isSelected}
+              //   onToggleConnect={() => handleToggleConnect(def)}
+              //   onToggleSelect={() => handleToggleSelect(def)}
+              // />
             );
           })
         )}
@@ -347,14 +441,14 @@ export function Systems() {
 
       <div className="systems-view__actions">
         <button
-          className={`systems-view__next-btn${canProceed ? ' systems-view__next-btn--enabled' : ''}`}
+          className={`systems-view__next-btn${canProceed ? " systems-view__next-btn--enabled" : ""}`}
           type="button"
           onClick={handleProceed}
           disabled={!canProceed}
           aria-label={
             canProceed
-              ? 'Proceed to Pre-flight checks'
-              : 'Select at least one connected system to continue'
+              ? "Proceed to Pre-flight checks"
+              : "Select at least one connected system to continue"
           }
         >
           Next
