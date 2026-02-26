@@ -1,7 +1,8 @@
-import { Outlet } from 'react-router-dom';
-import { Header } from '../components/Header';
-import { Sidebar } from '../components/Sidebar';
-import './AppLayout.css';
+import { Outlet } from "react-router-dom";
+import { Header } from "../components/Header";
+import { Sidebar } from "../components/Sidebar";
+import "./AppLayout.css";
+import { AppShell } from "@mantine/core";
 
 // ---------------------------------------------------------------------------
 // AppLayout — OpenBridge light theme shell
@@ -19,17 +20,17 @@ import './AppLayout.css';
 
 export function AppLayout() {
   return (
-    <div className="app-layout">
-      {/* Fixed topbar — always on top */}
-      <Header />
-
-      {/* Body: sidebar + routed content side-by-side */}
-      <div className="app-body">
+    <AppShell header={{ height: 42 }} navbar={{ width: 300, breakpoint: "sm" }}>
+      <AppShell.Header>
+        <Header />
+      </AppShell.Header>
+      <AppShell.Navbar>
         <Sidebar />
-        <main className="main-content" id="main-content" tabIndex={-1}>
-          <Outlet />
-        </main>
-      </div>
-    </div>
+      </AppShell.Navbar>
+      <AppShell.Main>
+        <Outlet />
+      </AppShell.Main>
+    </AppShell>
+
   );
 }
