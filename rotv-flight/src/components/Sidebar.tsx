@@ -1,11 +1,12 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { useFlow } from "../context/FlowContext";
+
 import { ObiUser } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/icons/icon-user";
 import { ObcNavigationMenu } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/navigation-menu/navigation-menu";
 
 import { ObcNavigationItem } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/navigation-item/navigation-item";
 import { ObcVendorButton } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/vendor-button/vendor-button";
 import "./Sidebar.css";
+import { useFlowStore } from "../stores/useFlowStore";
 const IMG_LOGO =
   "https://www.figma.com/api/mcp/asset/f369b666-5032-4b86-900f-c25c3c2c77c7";
 
@@ -47,7 +48,7 @@ const FOOTER_NAV: NavItemDef[] = [
 // ---------------------------------------------------------------------------
 
 export function Sidebar() {
-  const { step1Complete, step2Complete } = useFlow();
+  const { step1Complete, step2Complete } = useFlowStore();
   const location = useLocation();
 
   function isUnlocked(item: NavItemDef): boolean {
