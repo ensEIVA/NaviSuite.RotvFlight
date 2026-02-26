@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useProjectStore } from '../../stores/useProjectStore';
+import { useOperationStore } from '../../stores/useOperationStore';
 import './Dashboard.css';
 
 // ---------------------------------------------------------------------------
@@ -14,6 +17,12 @@ type FlightMode = 'parking' | 'fixed-depth' | 'follow-seabed' | 'ondulation';
 export function Dashboard() {
   const [activeMode, setActiveMode] = useState<FlightMode>('parking');
 
+  const { projects, activeProjectId } = useProjectStore();
+  const { operations, activeOperationId } = useOperationStore();
+
+  const activeProject   = projects.find((p) => p.id === activeProjectId);
+  const activeOperation = operations.find((op) => op.id === activeOperationId);
+
   // Flight mode field state
   const [fixedDepth, setFixedDepth]       = useState<number>(15);
   const [altOffset, setAltOffset]         = useState<number>(2);
@@ -22,6 +31,24 @@ export function Dashboard() {
 
   return (
     <div className="dashboard-v2">
+
+      {/* Active project / operation context bar */}
+      <div className="dashboard-v2__context-bar">
+        <span className="context-bar__item">
+          <span className="context-bar__label">Project</span>
+          <span className="context-bar__value">
+            {activeProject ? activeProject.name : <em>None</em>}
+          </span>
+        </span>
+        <span className="context-bar__separator" aria-hidden="true">›</span>
+        <span className="context-bar__item">
+          <span className="context-bar__label">Operation</span>
+          <span className="context-bar__value">
+            {activeOperation ? activeOperation.name : <em>None</em>}
+          </span>
+        </span>
+        <Link to="/projects" className="context-bar__link">Manage</Link>
+      </div>
 
       {/* ----------------------------------------------------------------
           Left aside — flight mode fieldsets

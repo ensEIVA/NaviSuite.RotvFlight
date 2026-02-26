@@ -3,6 +3,7 @@ import { AppLayout }  from '../layouts/AppLayout';
 import { Systems }    from '../views/Systems/Systems';
 import { PreFlight }  from '../views/PreFlight/PreFlight';
 import { Dashboard }  from '../views/Dashboard/Dashboard';
+import { Projects }   from '../views/Projects/Projects';
 import { Telemetry }  from '../views/Telemetry/Telemetry';
 import { DataQuality } from '../views/DataQuality/DataQuality';
 import { Calibration } from '../views/Calibration/Calibration';
@@ -49,6 +50,14 @@ export const router = createBrowserRouter([
             <Dashboard />
           </RequireStep>
         ),
+      },
+
+      // ----------------------------------------------------------------
+      // Projects & Operations management
+      // ----------------------------------------------------------------
+      {
+        path: 'projects',
+        element: <Projects />,
       },
 
       // ----------------------------------------------------------------

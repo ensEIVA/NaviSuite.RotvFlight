@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { PreFlightCheck, SystemEntry } from '../types';
-import { generateChecksForSystem, runCheck } from '../services/mockPreflightService';
+import { runCheck } from '../services/mockPreflightService';
 
 // ---------------------------------------------------------------------------
 // Shape
@@ -35,7 +35,13 @@ export const usePreFlightStore = create<PreFlightStore>((set, get) => ({
   loadChecks: (systems) => {
     const checksBySystem: Record<string, PreFlightCheck[]> = {};
     for (const system of systems) {
-      checksBySystem[system.id] = generateChecksForSystem(system.id, system.type);
+      // Checks are advertised by the system on discovery — reset status to pending
+      console.log(`Loading checks for system ${system.name} (${system.id})`, system.checks);
+      checksBySystem[system.id] = (system.checks ?? []).map((c) => ({
+        ...c,
+        status: 'pending' as const,
+        completedAt: undefined,
+      }));
     }
     set({ checksBySystem });
   },

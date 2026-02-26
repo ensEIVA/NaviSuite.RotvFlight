@@ -13,6 +13,33 @@ export interface SystemEntry {
   ip: string;
   firmware: string;
   signal: number; // dBm, e.g. -62
+  /** Pre-flight check manifest advertised by the system on discovery */
+  checks: PreFlightCheck[];
+}
+
+// --------------------------------------------------------------------------
+// Projects & Operations
+// --------------------------------------------------------------------------
+
+export type OperationStatus = 'planned' | 'active' | 'completed' | 'archived';
+
+export interface Operation {
+  id: string;
+  name: string;
+  description: string;
+  status: OperationStatus;
+  createdAt: ISOTimestamp;
+  /** Projects this operation belongs to */
+  projectIds: string[];
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: ISOTimestamp;
+  /** Operations grouped under this project */
+  operationIds: string[];
 }
 
 // --------------------------------------------------------------------------

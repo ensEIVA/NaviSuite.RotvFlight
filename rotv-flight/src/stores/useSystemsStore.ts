@@ -25,8 +25,18 @@ export const useSystemsStore = create<SystemsStore>((set) => ({
 
   connectSystem: (system) =>
     set((state) => {
-      if (state.connectedSystems.some((s) => s.id === system.id)) return state;
-      return { connectedSystems: [...state.connectedSystems, system] };
+      const connIdx = state.connectedSystems.findIndex((s) => s.id === system.id);
+      const connectedSystems = connIdx !== -1
+        ? state.connectedSystems.with(connIdx, system)
+        : [...state.connectedSystems, system];
+
+      // If this system is already selected, keep its entry in sync with the fresh data
+      const selIdx = state.selectedSystems.findIndex((s) => s.id === system.id);
+      const selectedSystems = selIdx !== -1
+        ? state.selectedSystems.with(selIdx, system)
+        : state.selectedSystems;
+
+      return { connectedSystems, selectedSystems };
     }),
 
   disconnectSystem: (id) =>
@@ -38,7 +48,10 @@ export const useSystemsStore = create<SystemsStore>((set) => ({
 
   selectSystem: (system) =>
     set((state) => {
-      if (state.selectedSystems.some((s) => s.id === system.id)) return state;
+      const idx = state.selectedSystems.findIndex((s) => s.id === system.id);
+      if (idx !== -1) {
+        return { selectedSystems: state.selectedSystems.with(idx, system) };
+      }
       return { selectedSystems: [...state.selectedSystems, system] };
     }),
 

@@ -1,35 +1,31 @@
-## RotvFlight Data Flow
+## Data Flow
 
 ```mermaid
 flowchart LR
-  subgraph Views
-    SV["Systems View"]
-    PV["PreFlight View"]
-    DV["Dashboard View"]
+  subgraph "Network"
+    PUB["publisher.js\nWebSocket :4001"]
   end
 
-  subgraph State
-    FC["FlowContext\nstep1Complete\nstep2Complete"]
-    SS["useSystemsStore\nconnectedSystems\nselectedSystems"]
+  subgraph "Systems"
+    SS["useSystemsStore\nconnectedSystems[]\nselectedSystems[]"]
+  end
+
+  subgraph "Pre-flight"
     PS["usePreFlightStore\nchecksBySystem\nisRunning"]
+    SVC["mockPreflightService\nrunCheck()"]
   end
 
-  subgraph Services
-    MS["mockPreflightService\ngenerateChecksForSystem\nrunCheck"]
+  subgraph "Projects & Operations"
+    PJS["useProjectStore\nprojects[ operationIds[] ]\nactiveProjectId"]
+    OS["useOperationStore\noperations[ projectIds[] ]\nactiveOperationId"]
   end
 
-  subgraph Router
-    RG["RequireStep\nRoute Guard"]
-  end
+  PUB -->|"SystemDef\n+ checks[]"| SS
+  SS -->|"selectedSystems\n(carries checks[])"| PS
+  PS -->|"runCheck per check"| SVC
 
-  SV -->|"connectSystem / disconnectSystem\nselectSystem / deselectSystem"| SS
-  SV -->|"completeStep1"| FC
-  SS -->|"selectedSystems"| PV
-  PV -->|"loadChecks / runAllChecks"| PS
-  PS -->|"generateChecksForSystem\nrunCheck"| MS
-  PV -->|"completeStep2"| FC
-  FC -->|"step1Complete\nstep2Complete"| RG
-  RG -->|"guard /preflight"| PV
-  RG -->|"guard /dashboard"| DV
-  SS -->|"selectedSystems"| DV
+  PJS -->|"linkOperation →\naddProjectRef"| OS
+  PJS -->|"unlinkOperation →\nremoveProjectRef"| OS
+  PJS -->|"deleteProject →\nremoveProjectRef cascade"| OS
+  OS -->|"deleteOperation →\nunlinkOperation cascade"| PJS
 ```
