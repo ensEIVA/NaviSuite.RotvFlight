@@ -273,17 +273,16 @@ export function Systems() {
 
   const navigate = useNavigate();
 
-  // Fetch available systems from the network (mock), then seed initial connections
+  // Subscribe to system discovery — systems trickle in one by one from the publisher
   useEffect(() => {
-    mockGetSystemsService().then((defs) => {
-      setCatalogue(defs);
-      defs.forEach((def) => {
-        if (def.initiallyConnected) {
-          connectSystem(def.entry);
-        }
-      });
+    const close = mockGetSystemsService((def) => {
+      setCatalogue((prev) => [...prev, def]);
+      if (def.initiallyConnected) {
+        connectSystem(def.entry);
+      }
       setLoading(false);
     });
+    return close;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
