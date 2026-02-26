@@ -1,0 +1,15 @@
+/* ==========================================================================
+   Sidebar — OpenBridge light theme
+   Width: 320px, full remaining height below topbar
+   Background: var(--color-bg-surface), right box-shadow
+   ========================================================================== */
+
+  .navigation-menu {
+    width: 320px;
+    height: 100%;
+    
+  }
+  .vendor-button {
+    padding: 8px;
+    display: flex;
+  }
