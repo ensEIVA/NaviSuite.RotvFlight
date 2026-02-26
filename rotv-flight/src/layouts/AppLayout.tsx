@@ -20,7 +20,7 @@ import { AppShell } from "@mantine/core";
 
 export function AppLayout() {
   return (
-    <AppShell header={{ height: 42 }} navbar={{ width: 300, breakpoint: "sm" }}>
+    <AppShell header={{ height: 52 }} navbar={{ width: 300, breakpoint: "sm" }}>
       <AppShell.Header>
         <Header />
       </AppShell.Header>

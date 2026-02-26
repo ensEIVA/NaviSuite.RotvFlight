@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useFlow } from '../context/FlowContext';
+import { useFlowStore } from '../stores/useFlowStore';
 
 interface RequireStepProps {
   /**
@@ -21,7 +21,7 @@ interface RequireStepProps {
  *   done but step 2 is not, or to / if neither is done.
  */
 export function RequireStep({ step, children }: RequireStepProps) {
-  const { step1Complete, step2Complete } = useFlow();
+  const { step1Complete, step2Complete } = useFlowStore();
 
   if (step === 1) {
     if (!step1Complete) {

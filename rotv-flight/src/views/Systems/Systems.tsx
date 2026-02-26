@@ -1,21 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useFlow, type SystemEntry } from '../../context/FlowContext';
+import { useFlowStore } from '../../stores/useFlowStore';
+import { useSystemsStore } from '../../stores/useSystemsStore';
+import mockGetSystemsService from '../../services/mockGetSystemsService';
+import type { SystemEntry } from '../../types';
 import './Systems.css';
 
-// ---------------------------------------------------------------------------
-// Image asset constants (Figma — valid ~7 days)
-// ---------------------------------------------------------------------------
 
-const IMG_SCANFISH = 'https://www.figma.com/api/mcp/asset/dab2b9d0-e054-44ef-9da0-8c09e0526520';
-const IMG_VIPERFISH = 'https://www.figma.com/api/mcp/asset/15ddf60a-b705-4368-b9d2-5d7189eabf9d';
-const IMG_WINCH     = 'https://www.figma.com/api/mcp/asset/3f376ace-05ae-4a12-99c5-c15508ba5c6e';
 
 // ---------------------------------------------------------------------------
-// Static system catalogue
+//  Static system catalogue
 // ---------------------------------------------------------------------------
 
-interface SystemDef {
+export interface SystemDef {
   entry: SystemEntry;
   displayName: string;
   image: string;
@@ -24,50 +21,7 @@ interface SystemDef {
   initiallyConnected: boolean;
 }
 
-const SYSTEM_CATALOGUE: SystemDef[] = [
-  {
-    entry: {
-      id: 'scanfish',
-      name: 'ScanFish Rocio',
-      type: 'Towed Undulating Vehicle',
-      ip: '192.168.1.10',
-      firmware: 'v4.12.3',
-      signal: -58,
-    },
-    displayName: 'ScanFish Rocio',
-    image: IMG_SCANFISH,
-    hasFirmwareUpdate: true,
-    initiallyConnected: true,
-  },
-  {
-    entry: {
-      id: 'viperfish',
-      name: 'ViperFish',
-      type: 'Deep-Tow Sensor Platform',
-      ip: '192.168.1.24',
-      firmware: 'v2.8.1',
-      signal: -71,
-    },
-    displayName: 'ViperFish',
-    image: IMG_VIPERFISH,
-    hasFirmwareUpdate: false,
-    initiallyConnected: false,
-  },
-  {
-    entry: {
-      id: 'winch',
-      name: 'Winch',
-      type: 'Tow Winch Controller',
-      ip: '192.168.1.50',
-      firmware: 'v1.6.0',
-      signal: -44,
-    },
-    displayName: 'Winch',
-    image: IMG_WINCH,
-    hasFirmwareUpdate: false,
-    initiallyConnected: true,
-  },
-];
+
 
 // ---------------------------------------------------------------------------
 // SVG icons
@@ -304,6 +258,9 @@ function SystemCard({
 // ---------------------------------------------------------------------------
 
 export function Systems() {
+  const [catalogue, setCatalogue] = useState<SystemDef[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const {
     connectedSystems,
     selectedSystems,
@@ -311,27 +268,25 @@ export function Systems() {
     disconnectSystem,
     selectSystem,
     deselectSystem,
-    completeStep1,
-  } = useFlow();
+  } = useSystemsStore();
+  const { completeStep1 } = useFlowStore();
 
   const navigate = useNavigate();
 
-  // Seed the initial connection state from the catalogue on first mount.
-  // ScanFish Rocio and Winch start as Connected per the Figma design.
-  // This only runs once and only adds systems not already in the connected list.
+  // Fetch available systems from the network (mock), then seed initial connections
   useEffect(() => {
-    SYSTEM_CATALOGUE.forEach((def) => {
-      if (def.initiallyConnected) {
-        const alreadyConnected = connectedSystems.some((s) => s.id === def.entry.id);
-        if (!alreadyConnected) {
+    mockGetSystemsService().then((defs) => {
+      setCatalogue(defs);
+      defs.forEach((def) => {
+        if (def.initiallyConnected) {
           connectSystem(def.entry);
         }
-      }
+      });
+      setLoading(false);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // The "Next" button is enabled when at least one system is both connected AND selected
   const canProceed = selectedSystems.some((sel) =>
     connectedSystems.some((con) => con.id === sel.id),
   );
@@ -353,7 +308,7 @@ export function Systems() {
 
   function handleToggleSelect(def: SystemDef) {
     const isConnected = connectedSystems.some((s) => s.id === def.entry.id);
-    if (!isConnected) return; // Cannot select a disconnected system
+    if (!isConnected) return;
     const isSelected = selectedSystems.some((s) => s.id === def.entry.id);
     if (isSelected) {
       deselectSystem(def.entry.id);
@@ -364,32 +319,33 @@ export function Systems() {
 
   return (
     <div className="systems-view">
-      {/* Page header */}
       <div className="systems-view__header">
         <h1 className="systems-view__title">Systems available on your network</h1>
         <p className="systems-view__subtitle">Select systems to use for operation</p>
       </div>
 
-      {/* System cards grid */}
       <section className="systems-view__grid" aria-label="Available systems">
-        {SYSTEM_CATALOGUE.map((def) => {
-          const isConnected = connectedSystems.some((s) => s.id === def.entry.id);
-          const isSelected = selectedSystems.some((s) => s.id === def.entry.id);
+        {loading ? (
+          <p className="systems-view__loading">Scanning network...</p>
+        ) : (
+          catalogue.map((def) => {
+            const isConnected = connectedSystems.some((s) => s.id === def.entry.id);
+            const isSelected = selectedSystems.some((s) => s.id === def.entry.id);
 
-          return (
-            <SystemCard
-              key={def.entry.id}
-              def={def}
-              isConnected={isConnected}
-              isSelected={isSelected}
-              onToggleConnect={() => handleToggleConnect(def)}
-              onToggleSelect={() => handleToggleSelect(def)}
-            />
-          );
-        })}
+            return (
+              <SystemCard
+                key={def.entry.id}
+                def={def}
+                isConnected={isConnected}
+                isSelected={isSelected}
+                onToggleConnect={() => handleToggleConnect(def)}
+                onToggleSelect={() => handleToggleSelect(def)}
+              />
+            );
+          })
+        )}
       </section>
 
-      {/* "Next" button — bottom-right of content area */}
       <div className="systems-view__actions">
         <button
           className={`systems-view__next-btn${canProceed ? ' systems-view__next-btn--enabled' : ''}`}
