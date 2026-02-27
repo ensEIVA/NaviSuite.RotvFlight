@@ -1,42 +1,42 @@
 /* ==========================================================================
    Systems View — Step 1: Network Discovery
-   OpenBridge light theme
    ========================================================================== */
 
-/* --- Page container --- */
 .systems-view {
-  display: flex;
-  flex-direction: column;
-  padding: 24px 24px 24px 24px;
+  display: grid;
+  grid-template-rows: min-content auto min-content;
+  padding: 24px;
   min-height: 100%;
   gap: 24px;
-  background-color: var(--color-bg-page);
+  background-color: var(--container-section-color);
 }
 
-/* --- Page header --- */
 .systems-view__header {
   display: flex;
   flex-direction: column;
-  gap: 4px;
 }
 
 .systems-view__title {
-  font-size: var(--font-size-xl); /* 24px */
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-active);
-  line-height: var(--line-height-tight);
+  font-family: var(--font-family-main, "Noto Sans");
+  font-size: var(--font-size-150, 24px);
+  font-weight: var(--font-weight-bold, 670);
+  line-height: var(--line-height-150, 32px);
+  font-feature-settings: "ss04" on, "liga" off, "clig" off;
+  margin: 0;
+  padding: 0;
 }
 
 .systems-view__subtitle {
-  font-size: var(--font-size-base); /* 16px */
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-neutral);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  line-height: var(--line-height-tight);
+  font-family: var(--font-family-main, "Noto Sans");
+  font-size: var(--global-typography-ui-overline-font-size, 16px);
+  font-weight: var(--font-weight-semibold, 570);
+  line-height: var(--global-typography-ui-overline-line-height, 24px);
+  letter-spacing: var(--global-typography-ui-overline-letter-spacing, 0.15px);
+  font-feature-settings: "ss04" on, "liga" off, "clig" off;
+  margin: 0;
+  padding: 0;
 }
 
-/* --- Cards grid --- */
 .systems-view__grid {
   display: flex;
   flex-direction: row;
@@ -45,139 +45,14 @@
   align-items: flex-start;
 }
 
-/* ==========================================================================
-   System Card
-   ========================================================================== */
-.systems-card {
-  display: flex;
-  width: 405px;
-  flex-direction: column;
-  align-items: flex-start;
-  border-radius: var(--UI-components-Card-border-radius-regular, 6px);
-  background: var(--Color-Container-Background-color, #f7f7f7);
+.systems-view__loading {
+  font-family: var(--font-family-main, "Noto Sans");
+  font-size: var(--font-size-100, 14px);
+  color: var(--color-text-secondary);
 }
-.systems-card__content {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 12px;
-  position: relative; /* fallback positioning context */
-  anchor-name: --card-content; /* define the anchor */
-  border-top: 2px solid var(--color-border-divider);
-
-}
-
-.systems-card__status-label {
-  display: flex;
-  height: 38px;
-  padding: 0 var(--UI-components-Boolean-indicator-container-padding, 4px);
-  align-items: center;
-  border-radius: var(
-    --UI-components-Boolean-indicator-container-border-radius,
-    4px
-  );
-
-  position: absolute;
-  position-anchor: --card-content;
-  top: calc(anchor(top) + 8px);
-  left: calc(anchor(left) + 8px);
-
-  &.disconnected {
-    color: red;
-  }
-  &.connected {
-    background-color: var(--Color-Base-Running-100, #c2e5bf);
-  }
-}
-
-/* --- Image area --- */
-.systems-card__image {
-  height: 250px;
-  overflow: hidden;
-  background-color: var(--color-bg-container);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-  }
-}
-
-/* Fallback placeholder when image fails to load */
-.systems-card__image-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 250px;
-  background-color: var(--color-border-divider);
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.systems-card__footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px;
-  gap: 8px;
-  flex-direction: row;
-  border-top: 2px solid var(--color-border-divider);
-
-  span {
-    display: flex;
-    gap: 4px;
-  }
-}
-
-/* ==========================================================================
-   Footer actions row (Next button)
-   ========================================================================== */
 
 .systems-view__actions {
   display: flex;
   justify-content: flex-end;
   padding-bottom: 8px;
-}
-
-/* "Next" button — disabled (grey) by default */
-.systems-view__next-btn {
-  height: 36px;
-  padding: 0 24px;
-  background: transparent;
-  border: 1px solid var(--color-border-divider);
-  color: var(--color-text-disabled);
-  border-radius: var(--border-radius-button);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  cursor: not-allowed;
-  transition:
-    background-color var(--transition-fast),
-    border-color var(--transition-fast),
-    color var(--transition-fast);
-}
-
-/* Enabled state */
-.systems-view__next-btn--enabled {
-  background-color: var(--color-nav-active-bg);
-  border-color: var(--color-nav-active-border);
-  color: var(--color-nav-active-text);
-  cursor: pointer;
-  font-weight: var(--font-weight-bold);
-}
-
-.systems-view__next-btn--enabled:hover {
-  background-color: #d4e6fc;
-  border-color: var(--color-nav-active-text);
-}
-
-.systems-view__next-btn:focus-visible {
-  outline: 2px solid var(--color-accent-default);
-  outline-offset: 2px;
 }
