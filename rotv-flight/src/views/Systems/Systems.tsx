@@ -21,7 +21,6 @@ export interface SystemDef {
   displayName: string;
   image: string;
   hasFirmwareUpdate: boolean;
-  /** Initial connected state — in a real app this would come from the network */
   initiallyConnected: boolean;
 }
 

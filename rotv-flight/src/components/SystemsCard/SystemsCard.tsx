@@ -6,6 +6,9 @@ import { ObcStatusIndicator } from "@ocean-industries-concept-lab/openbridge-web
 import { ObcButton } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/button/button";
 import type { SystemDef } from "../../views/Systems/Systems";
 import "./SystemsCard.css";
+import { IconButtonVariant } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/icon-button/icon-button";
+import { ButtonVariant } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/button/button";
+import { StatusIndicatorStatus } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/status-indicator/status-indicator";
 
 export interface SystemCardProps {
   def: SystemDef;
@@ -23,14 +26,14 @@ export default function SystemCard({
   onClickSettings,
 }: SystemCardProps) {
   return (
-    <ObcCard title={def.displayName} className="systems-card">
+    <ObcCard title={def.displayName} className={`systems-card ${!isConnected ? "systems-card--disabled" : ""}`} aria-disabled={!isConnected}>
       <div slot="title">{def.displayName}</div>
 
       <div className="systems-card__content">
         <span
           className={`systems-card__status-label systems-card__status-label--${isConnected ? "connected" : "disconnected"}`}
         >
-          <ObcStatusIndicator status={isConnected ? "running" : "inactive"}>
+          <ObcStatusIndicator status={isConnected ? StatusIndicatorStatus.running : StatusIndicatorStatus.inactive}>
             {isConnected ? "Connected" : "Disconnected"}
           </ObcStatusIndicator>
         </span>
@@ -55,14 +58,14 @@ export default function SystemCard({
 
         <div className="systems-card__footer">
           <span className="systems-card__footer-left">
-            <ObcIconButton variant="normal" onClick={onClickSettings}>
+            <ObcIconButton variant={IconButtonVariant.normal} onClick={onClickSettings} disabled={!isConnected} aria-label={`Settings for ${def.displayName}`}>
               <ObiSettingsIec />
             </ObcIconButton>
 
             {def.hasFirmwareUpdate && (
               <ObcButton
                 className="systems-card__firmware-btn"
-                variant="normal"
+                variant={ButtonVariant.normal}
                 showLeadingIcon
               >
                 <ObiFileDownloadGoogle slot="leading-icon" />
@@ -73,7 +76,7 @@ export default function SystemCard({
 
           <span className="systems-card__footer-right">
             <ObcButton
-              variant={isSelected ? "raised" : "normal"}
+              variant={isSelected ? ButtonVariant.raised : ButtonVariant.normal}
               onClick={onToggleSelect}
               disabled={!isConnected}
             >
