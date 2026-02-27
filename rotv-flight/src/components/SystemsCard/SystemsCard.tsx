@@ -12,6 +12,7 @@ export interface SystemCardProps {
   isConnected: boolean;
   isSelected: boolean;
   onToggleSelect: () => void;
+  onClickSettings: () => void;
 }
 
 export default function SystemCard({
@@ -19,6 +20,7 @@ export default function SystemCard({
   isConnected,
   isSelected,
   onToggleSelect,
+  onClickSettings,
 }: SystemCardProps) {
   return (
     <ObcCard title={def.displayName} className="systems-card">
@@ -53,7 +55,7 @@ export default function SystemCard({
 
         <div className="systems-card__footer">
           <span className="systems-card__footer-left">
-            <ObcIconButton variant="normal">
+            <ObcIconButton variant="normal" onClick={onClickSettings}>
               <ObiSettingsIec />
             </ObcIconButton>
 

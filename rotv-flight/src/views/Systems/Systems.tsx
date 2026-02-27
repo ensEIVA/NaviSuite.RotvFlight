@@ -9,6 +9,8 @@ import "./Systems.css";
 import { ObcButton } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/button/button";
 
 import SystemCard from "../../components/SystemsCard/SystemsCard";
+import { useDisclosure } from "@mantine/hooks";
+import { Modal } from "@mantine/core";
 
 // ---------------------------------------------------------------------------
 //  Static system catalogue
@@ -30,7 +32,7 @@ export interface SystemDef {
 export function Systems() {
   const [catalogue, setCatalogue] = useState<SystemDef[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [opened, { open, close }] = useDisclosure(false);
   const {
     connectedSystems,
     selectedSystems,
@@ -77,6 +79,12 @@ export function Systems() {
     }
   }
 
+  function handleClickSettings(def: SystemDef) {
+    // In a real app, this would open a system-specific settings page/modal
+    open();
+    console.log(def);
+  }
+
   return (
     <div className="systems-view">
       <div className="systems-view__header">
@@ -107,6 +115,7 @@ export function Systems() {
                 isConnected={isConnected}
                 isSelected={isSelected}
                 onToggleSelect={() => handleToggleSelect(def)}
+                onClickSettings={() => handleClickSettings(def)}
               />
             );
           })
@@ -126,6 +135,11 @@ export function Systems() {
           Next
         </ObcButton>
       </div>
+
+        <Modal opened={opened} onClose={close} title="Settings">
+          <p>Systems-specific settings would go here.</p>
+          
+      </Modal>
     </div>
   );
 }
