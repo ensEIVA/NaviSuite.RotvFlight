@@ -20,14 +20,14 @@ import { AppShell } from "@mantine/core";
 
 export function AppLayout() {
   return (
-    <AppShell header={{ height: 52 }} navbar={{ width: 320, breakpoint: "sm" }}>
+    <AppShell header={{ height: 52 }} navbar={{ width: 320, breakpoint: "sm" }} >
       <AppShell.Header>
         <Header />
       </AppShell.Header>
       <AppShell.Navbar>
         <Sidebar />
       </AppShell.Navbar>
-      <AppShell.Main>
+      <AppShell.Main style={{display: 'grid'}}>
         <Outlet />
       </AppShell.Main>
     </AppShell>
