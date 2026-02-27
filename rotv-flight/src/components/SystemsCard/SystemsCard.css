@@ -1,7 +1,7 @@
-
 /* ==========================================================================
    System Card
    ========================================================================== */
+
 .systems-card {
   display: flex;
   width: 413px;
@@ -9,88 +9,84 @@
   flex-direction: column;
   align-items: flex-start;
 }
+
 .systems-card__content {
   position: relative;
   display: flex;
-  justify-content: space-between;
   flex-direction: column;
+  justify-content: space-between;
   width: 100%;
   height: 100%;
   gap: 12px;
-  position: relative;
-
   border-top: 2px solid var(--border-divider-color);
 }
+
+/* --- Status label --- */
 
 .systems-card__status-label {
   display: flex;
   height: 38px;
   padding: 0 var(--ui-components-boolean-indicator-container-padding, 4px);
   align-items: center;
-  border-radius: var(
-    --ui-components-boolean-indicator-container-border-radius,
-    4px
-  );
-
+  border-radius: var(--ui-components-boolean-indicator-container-border-radius, 4px);
   position: absolute;
-  position-anchor: --card-content;
   top: 12px;
   left: 12px;
+}
 
-  &.disconnected {
-    color: red;
-  }
-  &.connected {
-    background-color: var(--base-running-100, #c2e5bf);
-  }
+.systems-card__status-label--connected {
+  background-color: var(--base-running-100, #c2e5bf);
+}
+
+.systems-card__status-label--disconnected {
+  color: red;
 }
 
 /* --- Image area --- */
+
 .systems-card__image {
   height: 100%;
   overflow: hidden;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  img {
-    width: 100%;
-    height: 250px;
-    /* height: 100%; */
-    object-fit: contain;
-    display: block;
-  }
 }
 
-/* Fallback placeholder when image fails to load */
+.systems-card__image img {
+  width: 100%;
+  height: 250px;
+  object-fit: contain;
+  display: block;
+}
+
 .systems-card__image-fallback {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 250px;
-
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
+/* --- Footer --- */
+
 .systems-card__footer {
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
   align-items: center;
   padding: 8px;
   gap: 8px;
-  flex-direction: row;
   border-top: 2px solid var(--border-divider-color);
-
-  span {
-    display: flex;
-    gap: 4px;
-  }
 }
 
-/* Border around just the inner content area */
-.firmware-button::part(visible-wrapper) {
+.systems-card__footer-left,
+.systems-card__footer-right {
+  display: flex;
+  gap: 4px;
+}
+
+.systems-card__firmware-btn::part(visible-wrapper) {
   border: 2px solid var(--instrument-enhanced-secondary-color);
 }

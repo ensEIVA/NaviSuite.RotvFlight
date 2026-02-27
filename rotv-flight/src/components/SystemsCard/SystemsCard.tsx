@@ -3,9 +3,10 @@ import { ObiFileDownloadGoogle } from "@ocean-industries-concept-lab/openbridge-
 import { ObcIconButton } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/icon-button/icon-button";
 import { ObcCard } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/card/card";
 import { ObcStatusIndicator } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/status-indicator/status-indicator";
-import type { SystemDef } from "../../views/Systems/Systems";
 import { ObcButton } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/button/button";
+import type { SystemDef } from "../../views/Systems/Systems";
 import "./SystemsCard.css";
+
 export interface SystemCardProps {
   def: SystemDef;
   isConnected: boolean;
@@ -17,42 +18,30 @@ export default function SystemCard({
   def,
   isConnected,
   isSelected,
-  
   onToggleSelect,
 }: SystemCardProps) {
   return (
-    <ObcCard
-      title={def.displayName}
-      key={def.entry.id}
-      className="systems-card"
-    >
+    <ObcCard title={def.displayName} className="systems-card">
       <div slot="title">{def.displayName}</div>
+
       <div className="systems-card__content">
-        {isConnected ? (
-          <span className="systems-card__status-label connected">
-            <ObcStatusIndicator status="running">Connected</ObcStatusIndicator>
-          </span>
-        ) : (
-          <span className="systems-card__status-label disconnected">
-            <ObcStatusIndicator status="inactive">
-              Disconnected
-            </ObcStatusIndicator>
-          </span>
-        )}
+        <span
+          className={`systems-card__status-label systems-card__status-label--${isConnected ? "connected" : "disconnected"}`}
+        >
+          <ObcStatusIndicator status={isConnected ? "running" : "inactive"}>
+            {isConnected ? "Connected" : "Disconnected"}
+          </ObcStatusIndicator>
+        </span>
 
         <div className="systems-card__image">
           <img
             src={def.image}
             alt={def.displayName}
             onError={(e) => {
-              // Fallback placeholder if no url!
               const target = e.currentTarget as HTMLImageElement;
               target.style.display = "none";
               const parent = target.parentElement;
-              if (
-                parent &&
-                !parent.querySelector(".systems-card__image-fallback")
-              ) {
+              if (parent && !parent.querySelector(".systems-card__image-fallback")) {
                 const fallback = document.createElement("div");
                 fallback.className = "systems-card__image-fallback";
                 fallback.textContent = def.displayName;
@@ -63,24 +52,24 @@ export default function SystemCard({
         </div>
 
         <div className="systems-card__footer">
-          <span className="left">
+          <span className="systems-card__footer-left">
             <ObcIconButton variant="normal">
               <ObiSettingsIec />
             </ObcIconButton>
 
             {def.hasFirmwareUpdate && (
               <ObcButton
-                className="firmware-button"
+                className="systems-card__firmware-btn"
                 variant="normal"
                 showLeadingIcon
-                disabled={!def.hasFirmwareUpdate}
               >
                 <ObiFileDownloadGoogle slot="leading-icon" />
                 Firmware update!
               </ObcButton>
             )}
           </span>
-          <span className="right">
+
+          <span className="systems-card__footer-right">
             <ObcButton
               variant={isSelected ? "raised" : "normal"}
               onClick={onToggleSelect}
