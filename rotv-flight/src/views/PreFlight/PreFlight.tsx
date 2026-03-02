@@ -14,9 +14,12 @@ import { ObiPending } from "@ocean-industries-concept-lab/openbridge-webcomponen
 import { ObcProgressBar } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/progress-bar/progress-bar";
 import { ObcButton } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/button/button";
 import { ButtonVariant } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/button/button";
-import { ObcFloatingItemDirection, ObcFloatingItemLineType } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/floating-item/floating-item";
+import {
+  ObcFloatingItemDirection,
+  ObcFloatingItemLineType,
+} from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/floating-item/floating-item";
 import { ObiCautionColorIec } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/icons/icon-caution-color-iec";
-import { ObcStatusIndicator } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/status-indicator/status-indicator"
+import { ObcStatusIndicator } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/status-indicator/status-indicator";
 
 // ---------------------------------------------------------------------------
 // PreFlight view
@@ -50,7 +53,7 @@ export function PreFlight() {
       category: c.category,
       status: c.status,
       sceneNode: c.sceneNode,
-    }))
+    })),
   );
 
   function handleRunAll() {
@@ -71,6 +74,12 @@ export function PreFlight() {
       <div className="preflight-view-wrapper">
         {/* Left panel — 3D scene */}
         <section className="preflight-scene" aria-label="ROTV 3D model viewer">
+          <div className="preflight-scene-legend">
+              <ObcStatusIndicator status="inactive" />
+              <ObcStatusIndicator status="active" />
+              <ObcStatusIndicator status="running" />
+              <ObcStatusIndicator status="warning" />
+            </div>
           <ObcCard noTitle className="preflight-scene-card">
             <div className="preflight-scene__canvas">
               <Canvas
@@ -112,16 +121,7 @@ export function PreFlight() {
                 aria-label="Check status legend"
               /> */}
             </div>
-              <div className="preflight-scene-legend">
-              <ObcStatusIndicator
-                status="inactive" />
-                <ObcStatusIndicator
-                status="active" />
-                <ObcStatusIndicator
-                status="running" />
-                <ObcStatusIndicator
-                status="warning" />
-                </div>
+            
 
             <ObcFloatingItem
               className="preflight-caution"
@@ -193,22 +193,21 @@ export function PreFlight() {
                     aria-label={`${system.name} checks`}
                   >
                     {checks.map((check) => (
-                        <div
+                      <div
                         key={check.id}
-                        className={`preflight-check-wrapper${hoveredCheckId === check.id ? ' preflight-check-wrapper--hovered' : ''}`}
+                        className={`preflight-check-wrapper${hoveredCheckId === check.id ? " preflight-check-wrapper--hovered" : ""}`}
                         onMouseEnter={() => setHoveredCheckId(check.id)}
                         onMouseLeave={() => setHoveredCheckId(null)}
-                        
-                        >
+                      >
                         <ObcFloatingItem lineType="multi-line">
                           <ObiPending slot="primary-icon" />
                           <span slot="title">{check.label}</span>
                           <span slot="description">
-                          {check.status.charAt(0).toUpperCase() +
-                            check.status.slice(1)}
+                            {check.status.charAt(0).toUpperCase() +
+                              check.status.slice(1)}
                           </span>
                         </ObcFloatingItem>
-                        </div>
+                      </div>
                     ))}
                   </ul>
                 </div>
