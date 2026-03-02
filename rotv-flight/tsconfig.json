@@ -1,4 +1,12 @@
 {
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "types": ["node"]
+  },
+  "include": [
+    "src",
+    "node/node_modules/@obr/**/*.d.ts"
+  ],
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
