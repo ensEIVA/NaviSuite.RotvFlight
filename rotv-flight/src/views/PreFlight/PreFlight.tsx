@@ -1,10 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { useNavigate } from "react-router-dom";
 import { useFlowStore } from "../../stores/useFlowStore";
 import { useSystemsStore } from "../../stores/useSystemsStore";
 import { usePreFlightStore } from "../../stores/usePreFlightStore";
+import { RotvScene } from "./RotvScene";
+import type { SceneCheck } from "./RotvScene";
 import "./PreFlight.css";
 import { ObcCard } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/card/card";
 import { ObcFloatingItem } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/floating-item/floating-item";
@@ -14,36 +16,6 @@ import { ObcButton } from "@ocean-industries-concept-lab/openbridge-webcomponent
 import { ButtonVariant } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/button/button";
 import { ObcFloatingItemDirection, ObcFloatingItemLineType } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/floating-item/floating-item";
 import { ObiCautionColorIec } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/icons/icon-caution-color-iec";
-// ---------------------------------------------------------------------------
-// ROTV 3D mesh
-// ---------------------------------------------------------------------------
-
-function RotvMesh() {
-  return (
-    <group>
-      <mesh position={[0, 0, 0]}>
-        <boxGeometry args={[2.4, 0.5, 0.5]} />
-        <meshStandardMaterial color="#1e90d4" metalness={0.6} roughness={0.3} />
-      </mesh>
-      <mesh position={[0.6, 0.35, 0]}>
-        <boxGeometry args={[0.6, 0.25, 0.05]} />
-        <meshStandardMaterial color="#3aa3e0" metalness={0.4} roughness={0.4} />
-      </mesh>
-      <mesh position={[0, -0.05, 0.55]}>
-        <boxGeometry args={[1.1, 0.06, 0.5]} />
-        <meshStandardMaterial color="#2a3f5f" metalness={0.5} roughness={0.3} />
-      </mesh>
-      <mesh position={[0, -0.05, -0.55]}>
-        <boxGeometry args={[1.1, 0.06, 0.5]} />
-        <meshStandardMaterial color="#2a3f5f" metalness={0.5} roughness={0.3} />
-      </mesh>
-      <mesh position={[-1.35, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <coneGeometry args={[0.25, 0.4, 8]} />
-        <meshStandardMaterial color="#1a2236" metalness={0.7} roughness={0.2} />
-      </mesh>
-    </group>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // PreFlight view
@@ -56,6 +28,8 @@ export function PreFlight() {
   const { completeStep2 } = useFlowStore();
   const navigate = useNavigate();
 
+  const [hoveredCheckId, setHoveredCheckId] = useState<string | null>(null);
+
   useEffect(() => {
     if (selectedSystems.length > 0) {
       loadChecks(selectedSystems);
@@ -67,6 +41,16 @@ export function PreFlight() {
   const totalCount = allChecks.length;
 
   const canProceed = !isRunning && totalCount > 0 && passedCount === totalCount;
+
+  const flatChecks: SceneCheck[] = selectedSystems.flatMap((s) =>
+    (checksBySystem[s.id] ?? []).map((c) => ({
+      id: c.id,
+      label: c.label,
+      category: c.category,
+      status: c.status,
+      sceneNode: c.sceneNode,
+    }))
+  );
 
   function handleRunAll() {
     runAllChecks(selectedSystems);
@@ -104,7 +88,11 @@ export function PreFlight() {
                   intensity={0.3}
                   color="#1e90d4"
                 />
-                <RotvMesh />
+                <RotvScene
+                  checks={flatChecks}
+                  hoveredCheckId={hoveredCheckId}
+                  onNodeHover={setHoveredCheckId}
+                />
                 <OrbitControls
                   enablePan={false}
                   minDistance={3}
@@ -114,13 +102,12 @@ export function PreFlight() {
                 />
               </Canvas>
             </div>
-            
+
             <ObcFloatingItem
               className="preflight-caution"
               lineType={ObcFloatingItemLineType.multiLine}
               direction={ObcFloatingItemDirection.vertical}
               action
-              
             >
               <ObiCautionColorIec slot="primary-icon" />
               <span slot="title">Caution</span>
@@ -131,9 +118,8 @@ export function PreFlight() {
 
               <span
                 slot="action"
-                className="preflight-caution-button" 
+                className="preflight-caution-button"
                 variant={ButtonVariant.raised}
-                
               >
                 ACK
               </span>
@@ -187,14 +173,21 @@ export function PreFlight() {
                     aria-label={`${system.name} checks`}
                   >
                     {checks.map((check) => (
-                      <ObcFloatingItem lineType="multi-line" key={check.id} ico>
-                        <ObiPending slot="primary-icon" />
-                        <span slot="title">{check.label}</span>
-                        <span slot="description">
-                          {check.status.charAt(0).toUpperCase() +
-                            check.status.slice(1)}
-                        </span>
-                      </ObcFloatingItem>
+                      <div
+                        key={check.id}
+                        className={`preflight-check-wrapper${hoveredCheckId === check.id ? ' preflight-check-wrapper--hovered' : ''}`}
+                        onMouseEnter={() => setHoveredCheckId(check.id)}
+                        onMouseLeave={() => setHoveredCheckId(null)}
+                      >
+                        <ObcFloatingItem lineType="multi-line" ico>
+                          <ObiPending slot="primary-icon" />
+                          <span slot="title">{check.label}</span>
+                          <span slot="description">
+                            {check.status.charAt(0).toUpperCase() +
+                              check.status.slice(1)}
+                          </span>
+                        </ObcFloatingItem>
+                      </div>
                     ))}
                   </ul>
                 </div>

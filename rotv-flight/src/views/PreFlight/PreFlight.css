@@ -153,6 +153,21 @@
 }
 
 /* -----------------------------------------------------------------------
+   Checklist row hover wrapper
+   ----------------------------------------------------------------------- */
+
+.preflight-check-wrapper {
+  border-left: 3px solid transparent;
+  border-radius: 2px;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.preflight-check-wrapper--hovered {
+  border-left-color: var(--color-accent, #1e90d4);
+  background-color: rgba(30, 144, 212, 0.06);
+}
+
+/* -----------------------------------------------------------------------
    Action buttons
    ----------------------------------------------------------------------- */
 

@@ -167,6 +167,19 @@ export interface SystemHealthSnapshot {
 
 export type CheckStatus = 'pending' | 'running' | 'passed' | 'failed' | 'skipped' | 'warning';
 
+export interface CheckSceneNode {
+  /** World-space position on the ROTV model [x, y, z] */
+  position: [number, number, number];
+  /** Label shown in the 3D tooltip — falls back to check.label */
+  label?: string;
+  /** Marker sphere radius in scene units. Default: 0.07 */
+  radius?: number;
+  /** Surface-normal offset to float the marker above geometry */
+  normalOffset?: [number, number, number];
+  /** Named mesh anchor for future connector lines */
+  meshAnchor?: string;
+}
+
 export interface PreFlightCheck {
   id: string;
   category: 'mechanical' | 'electrical' | 'software' | 'comms' | 'safety' | 'environmental';
@@ -177,6 +190,7 @@ export interface PreFlightCheck {
   operator?: string;
   completedAt?: ISOTimestamp;
   notes?: string;
+  sceneNode?: CheckSceneNode;
 }
 
 export interface PreFlightSession {
