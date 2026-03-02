@@ -79,6 +79,21 @@
 
 }
 
+.preflight-scene-legend {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background-color: var(--container-section-color);
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-family: var(--font-family-main, "Noto Sans");
+  font-size: var(--font-size-100, 14px);
+  font-weight: var(--font-weight-semibold, 570);
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+}
+
 /* -----------------------------------------------------------------------
    Right panel — checklist
    ----------------------------------------------------------------------- */
@@ -158,17 +173,7 @@
 /* -----------------------------------------------------------------------
    Checklist row hover wrapper
    ----------------------------------------------------------------------- */
-.preflight-scene-legend {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  background-color: var(--container-section-color);
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-family: var(--font-family-main, "Noto Sans");
-  font-size: var(--font-size-100, 14px);
-  font-weight: var(--font-weight-semibold, 570);
-}
+
 .preflight-check-wrapper {
   border-left: 3px solid transparent;
   border-radius: 2px;
@@ -186,7 +191,12 @@
 .preflight-view__actions {
   display: flex;
   flex-direction: row;
-  gap: 12px;
-  justify-content: flex-end;
+  
+  justify-content: space-between;
   padding-bottom: 8px;
+}
+.preflight-view__actions-span {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
 }

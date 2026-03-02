@@ -20,7 +20,9 @@ import {
 } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/floating-item/floating-item";
 import { ObiCautionColorIec } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/icons/icon-caution-color-iec";
 import { ObcStatusIndicator } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/status-indicator/status-indicator";
-
+import { ObiRunning } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/icons/icon-running";
+import { StatusIndicatorStatus } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/status-indicator/status-indicator";
+import { ObiAlarmUnacknowledgedIec } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/icons/icon-alarm-unacknowledged-iec";
 // ---------------------------------------------------------------------------
 // PreFlight view
 // ---------------------------------------------------------------------------
@@ -64,6 +66,9 @@ export function PreFlight() {
     completeStep2();
     navigate("/dashboard");
   }
+  function handleCancelPreflightCheck() {
+    navigate("/system-selection");
+  }
 
   return (
     <div className="preflight-view">
@@ -75,11 +80,31 @@ export function PreFlight() {
         {/* Left panel — 3D scene */}
         <section className="preflight-scene" aria-label="ROTV 3D model viewer">
           <div className="preflight-scene-legend">
-              <ObcStatusIndicator status="inactive" />
-              <ObcStatusIndicator status="active" />
-              <ObcStatusIndicator status="running" />
-              <ObcStatusIndicator status="warning" />
-            </div>
+            <ObcStatusIndicator
+              status={StatusIndicatorStatus.inactive}
+              title="Pending"
+            >
+              Pending
+            </ObcStatusIndicator>
+            <ObcStatusIndicator
+              status={StatusIndicatorStatus.active}
+              title="Checking"
+            >
+              Checking
+            </ObcStatusIndicator>
+            <ObcStatusIndicator
+              status={StatusIndicatorStatus.running}
+              title="Passed"
+            >
+              Passed
+            </ObcStatusIndicator>
+            <ObcStatusIndicator
+              status={StatusIndicatorStatus.alarm}
+              title="Failed"
+            >
+              Failed
+            </ObcStatusIndicator>
+          </div>
           <ObcCard noTitle className="preflight-scene-card">
             <div className="preflight-scene__canvas">
               <Canvas
@@ -121,7 +146,6 @@ export function PreFlight() {
                 aria-label="Check status legend"
               /> */}
             </div>
-            
 
             <ObcFloatingItem
               className="preflight-caution"
@@ -200,7 +224,26 @@ export function PreFlight() {
                         onMouseLeave={() => setHoveredCheckId(null)}
                       >
                         <ObcFloatingItem lineType="multi-line">
-                          <ObiPending slot="primary-icon" />
+                          {check.status === "pending" && (
+                            <ObiPending slot="primary-icon" />
+                          )}
+                          {check.status === "failed" && (
+                            <ObiAlarmUnacknowledgedIec slot="primary-icon" />
+                          )}
+                          {check.status === "running" && (
+                            <ObcProgressBar
+                              type="circular"
+                              circularState="indeterminate"
+                              showUnit={false}
+                              progressiveIndeterminate={false}
+                              slot="primary-icon"
+                            />
+                          )}
+                          {check.status === "passed" && (
+                            <ObiRunning slot="primary-icon" />
+                          )}
+
+                          {/* <ObiPending slot="primary-icon" /> */}
                           <span slot="title">{check.label}</span>
                           <span slot="description">
                             {check.status.charAt(0).toUpperCase() +
@@ -218,25 +261,33 @@ export function PreFlight() {
       </div>
 
       <div className="preflight-view__actions">
-        <ObcButton
-          onClick={handleRunAll}
-          disabled={isRunning || totalCount === 0}
-          aria-busy={isRunning}
-        >
-          {isRunning ? "Running checks…" : "Run All Checks"}
-        </ObcButton>
-        <ObcButton
-          variant={canProceed ? ButtonVariant.raised : ButtonVariant.normal}
-          onClick={handleProceed}
-          disabled={!canProceed}
-          aria-label={
-            canProceed
-              ? "Proceed to Dashboard"
-              : "All checks must pass before proceeding"
-          }
-        >
-          {canProceed ? "Proceed to Dashboard →" : "Resolve checks to proceed"}
-        </ObcButton>
+        <span className="preflight-view__actions-span">
+          <ObcButton onClick={handleCancelPreflightCheck}>Cancel</ObcButton>
+        </span>
+        <span className="preflight-view__actions-span">
+          <ObcButton
+            onClick={handleRunAll}
+            disabled={isRunning || totalCount === 0}
+            aria-busy={isRunning}
+          >
+            {isRunning ? "Running checks…" : "Run All Checks"}
+          </ObcButton>
+
+          <ObcButton
+            variant={canProceed ? ButtonVariant.raised : ButtonVariant.normal}
+            onClick={handleProceed}
+            disabled={!canProceed}
+            aria-label={
+              canProceed
+                ? "Proceed to Dashboard"
+                : "All checks must pass before proceeding"
+            }
+          >
+            {canProceed
+              ? "Proceed to Dashboard →"
+              : "Resolve checks to proceed"}
+          </ObcButton>
+        </span>
       </div>
     </div>
   );
