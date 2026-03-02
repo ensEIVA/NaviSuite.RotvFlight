@@ -5,49 +5,15 @@ import { useNavigate } from "react-router-dom";
 import { useFlowStore } from "../../stores/useFlowStore";
 import { useSystemsStore } from "../../stores/useSystemsStore";
 import { usePreFlightStore } from "../../stores/usePreFlightStore";
-import type { CheckStatus } from "../../types";
 import "./PreFlight.css";
 import { ObcCard } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/card/card";
 import { ObcFloatingItem } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/floating-item/floating-item";
-import {ObiPending } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/icons/icon-pending";
+import { ObiPending } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/icons/icon-pending";
 import { ObcProgressBar } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/progress-bar/progress-bar";
-// ---------------------------------------------------------------------------
-// Status icon
-// ---------------------------------------------------------------------------
-
-function StatusIcon({ status }: { status: CheckStatus }) {
-  switch (status) {
-    case "passed":
-      return (
-        <span className="check-icon check-icon--success" aria-hidden="true">
-          &#10003;
-        </span>
-      );
-    case "failed":
-      return (
-        <span className="check-icon check-icon--failed" aria-hidden="true">
-          &#10007;
-        </span>
-      );
-    case "running":
-      return (
-        <span
-          className="check-icon check-icon--checking check-spinner"
-          aria-hidden="true"
-        >
-          &#9696;
-        </span>
-      );
-    case "pending":
-    default:
-      return (
-        <span className="check-icon check-icon--pending" aria-hidden="true">
-          &#128336;
-        </span>
-      );
-  }
-}
-
+import { ObcButton } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/button/button";
+import { ButtonVariant } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/button/button";
+import { ObcFloatingItemDirection, ObcFloatingItemLineType } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/floating-item/floating-item";
+import { ObiCautionColorIec } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/icons/icon-caution-color-iec";
 // ---------------------------------------------------------------------------
 // ROTV 3D mesh
 // ---------------------------------------------------------------------------
@@ -90,14 +56,12 @@ export function PreFlight() {
   const { completeStep2 } = useFlowStore();
   const navigate = useNavigate();
 
-  // Seed checks whenever the selected system list changes
   useEffect(() => {
     if (selectedSystems.length > 0) {
       loadChecks(selectedSystems);
     }
   }, [selectedSystems, loadChecks]);
 
-  // Derived: total and passed counts across all selected systems
   const allChecks = selectedSystems.flatMap((s) => checksBySystem[s.id] ?? []);
   const passedCount = allChecks.filter((c) => c.status === "passed").length;
   const totalCount = allChecks.length;
@@ -115,12 +79,15 @@ export function PreFlight() {
 
   return (
     <div className="preflight-view">
-      <h2>Preflight Check</h2>
-      {/* Left panel — 3D scene */}
+      <div className="preflight-view__header">
+        <h1 className="preflight-view__title">Pre-flight Check</h1>
+      </div>
+
       <div className="preflight-view-wrapper">
+        {/* Left panel — 3D scene */}
         <section className="preflight-scene" aria-label="ROTV 3D model viewer">
-          <ObcCard noTitle>
-            <div>
+          <ObcCard noTitle className="preflight-scene-card">
+            <div className="preflight-scene__canvas">
               <Canvas
                 camera={{ position: [4, 2, 4], fov: 45 }}
                 style={{ background: "white", width: "100%", height: "100%" }}
@@ -147,16 +114,31 @@ export function PreFlight() {
                 />
               </Canvas>
             </div>
-          </ObcCard>
+            
+            <ObcFloatingItem
+              className="preflight-caution"
+              lineType={ObcFloatingItemLineType.multiLine}
+              direction={ObcFloatingItemDirection.vertical}
+              action
+              
+            >
+              <ObiCautionColorIec slot="primary-icon" />
+              <span slot="title">Caution</span>
+              <span slot="description">
+                Ensure the ROTV area is clear of personnel before running
+                preflight check.
+              </span>
 
-          <ObcFloatingItem lineType="multi-line">
-            <span slot="title">Caution</span>
-            <span slot="description">
-              Ensure the ROTV area is clear of personnel before running
-              preflight check.
-            </span>
-            <span slot="action">ACK</span>
-          </ObcFloatingItem>
+              <span
+                slot="action"
+                className="preflight-caution-button" 
+                variant={ButtonVariant.raised}
+                
+              >
+                ACK
+              </span>
+            </ObcFloatingItem>
+          </ObcCard>
         </section>
 
         {/* Right panel — checklist */}
@@ -164,34 +146,40 @@ export function PreFlight() {
           className="preflight-checklist"
           aria-label="Pre-flight checklist"
         >
-          <ObcCard title="Status">
+          <ObcCard noTitle className="preflight-checklist-card">
             {selectedSystems.map((system) => {
               const checks = checksBySystem[system.id] ?? [];
+              const sysPassed = checks.filter(
+                (c) => c.status === "passed",
+              ).length;
               return (
                 <div
                   key={system.id}
                   className="preflight-checklist-system-group"
                 >
-                  <div className="preflight-checklist-header">
-                  <h2 className="preflight-checklist-system-name">
-                    {system.name}
-                  </h2>
-                  <div className="preflight-checklist-progress">
-                    {checks.length > 0 ? (
-                      <span className="preflight-checklist-progress-count">
-                        {passedCount}
-                        <span className="preflight-checklist-progress-total">
-                          /{totalCount}
+                  <h1 className="preflight-checklist-title" slot="title">
+                    Status
+                  </h1>
+                  <div className="preflight-checklist-header" slot="header">
+                    <h2 className="preflight-checklist-system-name">
+                      {system.name}
+                    </h2>
+                    {checks.length > 0 && (
+                      <div className="preflight-checklist-progress">
+                        <span className="preflight-checklist-progress-count">
+                          {sysPassed}
                         </span>
-                        passed
-                      </span>
-                    ) : null}
-                  </div>
-
+                        <span className="preflight-checklist-progress-total">
+                          /{checks.length} passed
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <ObcProgressBar
-                    value={checks.length > 0 ? (passedCount / totalCount) * 100 : 0}
-                    aria-label={`${passedCount} out of ${totalCount} checks passed for ${system.name}`}
+                    value={
+                      checks.length > 0 ? (sysPassed / checks.length) * 100 : 0
+                    }
+                    aria-label={`${sysPassed} out of ${checks.length} checks passed for ${system.name}`}
                   />
                   <ul
                     className="preflight-checklist-list"
@@ -200,137 +188,32 @@ export function PreFlight() {
                   >
                     {checks.map((check) => (
                       <ObcFloatingItem lineType="multi-line" key={check.id} ico>
-                        <ObiPending slot="primary-icon"></ObiPending>
+                        <ObiPending slot="primary-icon" />
                         <span slot="title">{check.label}</span>
                         <span slot="description">
-                          {check.status.charAt(0).toUpperCase() + check.status.slice(1)}
-                          </span>
+                          {check.status.charAt(0).toUpperCase() +
+                            check.status.slice(1)}
+                        </span>
                       </ObcFloatingItem>
-                      // <li
-                      //   key={check.id}
-                      //   className={`preflight-checklist-item preflight-checklist-item--${check.status}`}
-                      //   aria-label={`${check.label}: ${check.status}`}
-                      // >
-                      //   <StatusIcon status={check.status} />
-                      //   <span className="preflight-checklist-item-label">
-                      //     {check.label}
-                      //   </span>
-                      //   <span
-                      //     className={`preflight-checklist-item-status-text preflight-checklist-item-status-text--${check.status}`}
-                      //   >
-                      //     {check.status}
-                      //   </span>
-                      // </li>
                     ))}
                   </ul>
                 </div>
               );
             })}
           </ObcCard>
-
-          {/* <div className="preflight-checklist-header">
-            <div>
-              <h1 className="preflight-checklist-title">Pre-flight Checks</h1>
-              <p className="preflight-checklist-subtitle">
-                Run all checks before proceeding to operations
-              </p>
-            </div>
-
-            <div
-              className="preflight-checklist-progress-pill"
-              aria-live="polite"
-            >
-              <span className="preflight-checklist-progress-count">
-                {passedCount}
-                <span className="preflight-checklist-progress-total">
-                  /{totalCount}
-                </span>
-              </span>
-              <span className="preflight-checklist-progress-label">passed</span>
-            </div>
-          </div>
-
-          
-          <div className="preflight-checklist-systems">
-            {selectedSystems.map((system) => {
-              const checks = checksBySystem[system.id] ?? [];
-              return (
-                <div
-                  key={system.id}
-                  className="preflight-checklist-system-group"
-                >
-                  <h2 className="preflight-checklist-system-name">
-                    {system.name}
-                  </h2>
-                  <ul
-                    className="preflight-checklist-list"
-                    role="list"
-                    aria-label={`${system.name} checks`}
-                  >
-                    {checks.map((check) => (
-                      <li
-                        key={check.id}
-                        className={`preflight-checklist-item preflight-checklist-item--${check.status}`}
-                        aria-label={`${check.label}: ${check.status}`}
-                      >
-                        <StatusIcon status={check.status} />
-                        <span className="preflight-checklist-item-label">
-                          {check.label}
-                        </span>
-                        <span
-                          className={`preflight-checklist-item-status-text preflight-checklist-item-status-text--${check.status}`}
-                        >
-                          {check.status}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
-          </div>
-
-          
-          <div className="preflight-checklist-actions">
-            <button
-              className="btn-secondary preflight-checklist-run-btn"
-              onClick={handleRunAll}
-              disabled={isRunning || totalCount === 0}
-              aria-busy={isRunning}
-            >
-              {isRunning ? "Running checks..." : "Run All Checks"}
-            </button>
-
-            <button
-              className={`btn-lg preflight-v2__proceed-btn ${canProceed ? "btn-success" : "btn-secondary"}`}
-              onClick={handleProceed}
-              disabled={!canProceed}
-              aria-label={
-                canProceed
-                  ? "Proceed to Dashboard"
-                  : "All checks must pass before proceeding"
-              }
-            >
-              {canProceed
-                ? "Proceed to Dashboard \u2192"
-                : "Resolve checks to proceed"}
-            </button>
-          </div> */}
         </section>
       </div>
 
-      <div className="preflight-checklist-actions">
-        <button
-          className="btn-secondary preflight-checklist-run-btn"
+      <div className="preflight-view__actions">
+        <ObcButton
           onClick={handleRunAll}
           disabled={isRunning || totalCount === 0}
           aria-busy={isRunning}
         >
-          {isRunning ? "Running checks..." : "Run All Checks"}
-        </button>
-
-        <button
-          className={`btn-lg preflight-v2__proceed-btn ${canProceed ? "btn-success" : "btn-secondary"}`}
+          {isRunning ? "Running checks…" : "Run All Checks"}
+        </ObcButton>
+        <ObcButton
+          variant={canProceed ? ButtonVariant.raised : ButtonVariant.normal}
           onClick={handleProceed}
           disabled={!canProceed}
           aria-label={
@@ -339,10 +222,8 @@ export function PreFlight() {
               : "All checks must pass before proceeding"
           }
         >
-          {canProceed
-            ? "Proceed to Dashboard \u2192"
-            : "Resolve checks to proceed"}
-        </button>
+          {canProceed ? "Proceed to Dashboard →" : "Resolve checks to proceed"}
+        </ObcButton>
       </div>
     </div>
   );
