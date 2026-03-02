@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package rotv.v1;
+
+import "rotv/v1/common.proto";
+
+option go_package = "github.com/navisuite/rotv-flight/gen/rotv/v1;rotvv1";
+
+service PreflightService {
+  // Runs a pre-flight session for the given systems, streaming status updates.
+  // The server drives check sequencing; the client applies each update.
+  rpc RunSession(RunSessionRequest) returns (stream CheckStatusUpdate);
+}
+
+message RunSessionRequest {
+  repeated string system_ids = 1;
+}
+
+message CheckStatusUpdate {
+  string system_id = 1;
+  string check_id = 2;
+  CheckStatus status = 3;
+  // ISO 8601 timestamp — empty until the check reaches a terminal state
+  string completed_at = 4;
+}

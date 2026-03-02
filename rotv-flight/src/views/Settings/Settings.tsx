@@ -1,52 +1,36 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { SystemSettings } from '../../types';
+import { getSettings, saveSettings } from '../../services/settingsService';
 import './Settings.css';
-
-// ---------------------------------------------------------------------------
-// Default settings state
-// ---------------------------------------------------------------------------
-
-const DEFAULT_SETTINGS: SystemSettings = {
-  instanceName:  'ROTV-01',
-  operatorName:  'J. Mackenzie',
-  display: {
-    unitSystem:        'metric',
-    coordinateFormat:  'decimal',
-    depthReference:    'below_surface',
-    timezone:          'UTC',
-    refreshRateHz:     10,
-  },
-  alerts: {
-    rollThresholdDeg:  15,
-    pitchThresholdDeg: 20,
-    minAltitudeM:      2,
-    maxDepthM:         200,
-    maxTensionKn:      6,
-    enableAudioAlerts: true,
-    enableVisualFlash: true,
-  },
-};
 
 type SettingsTab = 'general' | 'display' | 'alerts' | 'about';
 
 export function Settings() {
-  const [settings, setSettings] = useState<SystemSettings>(DEFAULT_SETTINGS);
+  const [settings, setSettings] = useState<SystemSettings | null>(null);
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
   const [saved, setSaved] = useState(false);
 
+  useEffect(() => {
+    getSettings().then(setSettings).catch(console.error);
+  }, []);
+
   function handleSave() {
-    // In production: persist to local storage / remote config API
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    if (!settings) return;
+    saveSettings(settings).then(() => {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    }).catch(console.error);
   }
 
-  function updateDisplay<K extends keyof typeof settings.display>(key: K, value: typeof settings.display[K]) {
-    setSettings((prev) => ({ ...prev, display: { ...prev.display, [key]: value } }));
+  function updateDisplay<K extends keyof SystemSettings['display']>(key: K, value: SystemSettings['display'][K]) {
+    setSettings((prev) => prev ? { ...prev, display: { ...prev.display, [key]: value } } : prev);
   }
 
-  function updateAlerts<K extends keyof typeof settings.alerts>(key: K, value: typeof settings.alerts[K]) {
-    setSettings((prev) => ({ ...prev, alerts: { ...prev.alerts, [key]: value } }));
+  function updateAlerts<K extends keyof SystemSettings['alerts']>(key: K, value: SystemSettings['alerts'][K]) {
+    setSettings((prev) => prev ? { ...prev, alerts: { ...prev.alerts, [key]: value } } : prev);
   }
+
+  if (!settings) return null;
 
   return (
     <div className="settings">
@@ -90,7 +74,7 @@ export function Settings() {
                 id="instance-name"
                 type="text"
                 value={settings.instanceName}
-                onChange={(e) => setSettings((prev) => ({ ...prev, instanceName: e.target.value }))}
+                onChange={(e) => setSettings((prev) => prev ? { ...prev, instanceName: e.target.value } : prev)}
               />
               <p className="settings__field-hint">Identifies this ROTV in multi-vehicle deployments.</p>
             </div>
@@ -101,7 +85,7 @@ export function Settings() {
                 id="operator-name"
                 type="text"
                 value={settings.operatorName}
-                onChange={(e) => setSettings((prev) => ({ ...prev, operatorName: e.target.value }))}
+                onChange={(e) => setSettings((prev) => prev ? { ...prev, operatorName: e.target.value } : prev)}
               />
               <p className="settings__field-hint">Logged against all events, calibrations, and pre-flight checks.</p>
             </div>

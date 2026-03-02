@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package rotv.v1;
+
+option go_package = "github.com/navisuite/rotv-flight/gen/rotv/v1;rotvv1";
+
+service TelemetryService {
+  rpc StreamTelemetry(TelemetryStreamRequest) returns (stream TelemetrySnapshot);
+}
+
+message TelemetryStreamRequest {
+  string system_id = 1;
+}
+
+message Attitude {
+  double roll = 1;     // degrees, negative = port list
+  double pitch = 2;    // degrees, positive = nose up
+  double heading = 3;  // degrees true (0–360)
+}
+
+message Position {
+  double latitude = 1;
+  double longitude = 2;
+  double depth = 3;    // metres below surface
+  double altitude = 4; // metres above seabed
+}
+
+message Velocity {
+  double surge = 1;        // m/s forward
+  double sway = 2;         // m/s lateral
+  double heave = 3;        // m/s vertical
+  double ground_speed = 4; // knots
+}
+
+message Power {
+  double voltage = 1;           // volts
+  double current = 2;           // amps
+  double power_w = 3;           // watts consumed
+  optional double battery_pct = 4; // optional — for battery-backed systems
+}
+
+message TelemetrySnapshot {
+  string timestamp = 1;    // ISO 8601
+  Attitude attitude = 2;
+  Position position = 3;
+  Velocity velocity = 4;
+  Power power = 5;
+  double tow_cable_tension = 6; // kN
+  double water_temp = 7;        // °C
+  double salinity = 8;          // PSU
+  double sound_velocity = 9;    // m/s
+  double cable_out = 10;        // metres
+}

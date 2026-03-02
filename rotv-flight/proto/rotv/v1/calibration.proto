@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package rotv.v1;
+
+option go_package = "github.com/navisuite/rotv-flight/gen/rotv/v1;rotvv1";
+
+service CalibrationService {
+  rpc ListCalibrations(ListCalibrationsRequest) returns (ListCalibrationsResponse);
+  rpc RunCalibration(RunCalibrationRequest) returns (stream CalibrationProgress);
+}
+
+message ListCalibrationsRequest {
+  string system_id = 1;
+}
+
+message CalibrationItem {
+  string id = 1;
+  string subsystem = 2;
+  string label = 3;
+  // "not_run" | "in_progress" | "passed" | "failed" | "stale"
+  string status = 4;
+  optional string last_run = 5;    // ISO 8601
+  optional string operator = 6;
+  optional double residual_error = 7;
+  optional string notes = 8;
+}
+
+message ListCalibrationsResponse {
+  repeated CalibrationItem items = 1;
+}
+
+message RunCalibrationRequest {
+  string system_id = 1;
+  string calibration_id = 2;
+}
+
+message CalibrationProgress {
+  string calibration_id = 1;
+  // "in_progress" | "passed" | "failed"
+  string status = 2;
+  int32 progress_pct = 3;
+  optional string message = 4;
+  optional double residual_error = 5;
+  optional string completed_at = 6; // ISO 8601
+}

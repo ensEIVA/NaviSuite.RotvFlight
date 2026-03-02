@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package rotv.v1;
+
+import "rotv/v1/common.proto";
+
+option go_package = "github.com/navisuite/rotv-flight/gen/rotv/v1;rotvv1";
+
+service SystemDiscoveryService {
+  // Streams system definitions as they are discovered on the network.
+  rpc DiscoverSystems(DiscoverSystemsRequest) returns (stream SystemDef);
+}
+
+message DiscoverSystemsRequest {}
+
+message SystemDef {
+  SystemEntry entry = 1;
+  string display_name = 2;
+  // URL (not file path) — server serves assets at /assets/*
+  string image_url = 3;
+  bool has_firmware_update = 4;
+  bool initially_connected = 5;
+}

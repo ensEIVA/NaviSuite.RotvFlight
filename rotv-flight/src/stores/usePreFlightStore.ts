@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import type { PreFlightCheck, SystemEntry } from '../types';
 import { runCheck } from '../services/mockPreflightService';
+import { transport } from '../services/transport';
+import { runSession } from '../services/preflightService';
 
 // ---------------------------------------------------------------------------
 // Shape
@@ -14,7 +16,7 @@ interface PreFlightStore {
   /** Populate checks for each selected system (resets existing checks) */
   loadChecks: (systems: SystemEntry[]) => void;
 
-  /** Run every check sequentially: system by system, check by check */
+  /** Run every check: server-streaming when gRPC is on, mock loop otherwise */
   runAllChecks: (systems: SystemEntry[]) => Promise<void>;
 
   /** Clear all state */
@@ -35,7 +37,6 @@ export const usePreFlightStore = create<PreFlightStore>((set, get) => ({
   loadChecks: (systems) => {
     const checksBySystem: Record<string, PreFlightCheck[]> = {};
     for (const system of systems) {
-      // Checks are advertised by the system on discovery — reset status to pending
       console.log(`Loading checks for system ${system.name} (${system.id})`, system.checks);
       checksBySystem[system.id] = (system.checks ?? []).map((c) => ({
         ...c,
@@ -63,34 +64,60 @@ export const usePreFlightStore = create<PreFlightStore>((set, get) => ({
       return { checksBySystem: reset };
     });
 
-    // Sequential: system → check
-    for (const system of systems) {
-      const checks = get().checksBySystem[system.id] ?? [];
+    if (transport) {
+      // --- ConnectRPC path: server drives sequencing ---
+      const ctrl = new AbortController();
+      try {
+        for await (const update of runSession(
+          systems.map((s) => s.id),
+          ctrl.signal,
+        )) {
+          set((state) => ({
+            checksBySystem: {
+              ...state.checksBySystem,
+              [update.systemId]: (state.checksBySystem[update.systemId] ?? []).map((c) =>
+                c.id === update.checkId
+                  ? {
+                      ...c,
+                      status: update.status,
+                      completedAt: update.completedAt || undefined,
+                    }
+                  : c,
+              ),
+            },
+          }));
+        }
+      } catch (err) {
+        console.error('[usePreFlightStore] runSession error', err);
+      }
+    } else {
+      // --- Mock path: sequential loop ---
+      for (const system of systems) {
+        const checks = get().checksBySystem[system.id] ?? [];
 
-      for (const check of checks) {
-        // Mark as running
-        set((state) => ({
-          checksBySystem: {
-            ...state.checksBySystem,
-            [system.id]: state.checksBySystem[system.id].map((c) =>
-              c.id === check.id ? { ...c, status: 'running' as const } : c,
-            ),
-          },
-        }));
+        for (const check of checks) {
+          set((state) => ({
+            checksBySystem: {
+              ...state.checksBySystem,
+              [system.id]: state.checksBySystem[system.id].map((c) =>
+                c.id === check.id ? { ...c, status: 'running' as const } : c,
+              ),
+            },
+          }));
 
-        const result = await runCheck(check);
+          const result = await runCheck(check);
 
-        // Record result
-        set((state) => ({
-          checksBySystem: {
-            ...state.checksBySystem,
-            [system.id]: state.checksBySystem[system.id].map((c) =>
-              c.id === check.id
-                ? { ...c, status: result, completedAt: new Date().toISOString() }
-                : c,
-            ),
-          },
-        }));
+          set((state) => ({
+            checksBySystem: {
+              ...state.checksBySystem,
+              [system.id]: state.checksBySystem[system.id].map((c) =>
+                c.id === check.id
+                  ? { ...c, status: result, completedAt: new Date().toISOString() }
+                  : c,
+              ),
+            },
+          }));
+        }
       }
     }
 

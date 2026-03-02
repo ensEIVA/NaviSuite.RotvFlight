@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package rotv.v1;
+
+option go_package = "github.com/navisuite/rotv-flight/gen/rotv/v1;rotvv1";
+
+service SettingsService {
+  rpc GetSettings(GetSettingsRequest) returns (SystemSettings);
+  rpc SaveSettings(SystemSettings) returns (SaveSettingsResponse);
+}
+
+message GetSettingsRequest {}
+
+message SaveSettingsResponse {
+  bool success = 1;
+}
+
+message DisplaySettings {
+  // "metric" | "imperial"
+  string unit_system = 1;
+  // "decimal" | "dms" | "ddm"
+  string coordinate_format = 2;
+  // "below_surface" | "below_keel"
+  string depth_reference = 3;
+  string timezone = 4;
+  int32 refresh_rate_hz = 5;
+}
+
+message AlertSettings {
+  double roll_threshold_deg = 1;
+  double pitch_threshold_deg = 2;
+  double min_altitude_m = 3;
+  double max_depth_m = 4;
+  double max_tension_kn = 5;
+  bool enable_audio_alerts = 6;
+  bool enable_visual_flash = 7;
+}
+
+message SystemSettings {
+  DisplaySettings display = 1;
+  AlertSettings alerts = 2;
+  string instance_name = 3;
+  string operator_name = 4;
+}

@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package rotv.v1;
+
+option go_package = "github.com/navisuite/rotv-flight/gen/rotv/v1;rotvv1";
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum CheckStatus {
+  CHECK_STATUS_UNSPECIFIED = 0;
+  CHECK_STATUS_PENDING = 1;
+  CHECK_STATUS_RUNNING = 2;
+  CHECK_STATUS_PASSED = 3;
+  CHECK_STATUS_FAILED = 4;
+  CHECK_STATUS_SKIPPED = 5;
+  CHECK_STATUS_WARNING = 6;
+}
+
+enum CheckCategory {
+  CHECK_CATEGORY_UNSPECIFIED = 0;
+  CHECK_CATEGORY_MECHANICAL = 1;
+  CHECK_CATEGORY_ELECTRICAL = 2;
+  CHECK_CATEGORY_SOFTWARE = 3;
+  CHECK_CATEGORY_COMMS = 4;
+  CHECK_CATEGORY_SAFETY = 5;
+  CHECK_CATEGORY_ENVIRONMENTAL = 6;
+}
+
+enum SystemStatus {
+  SYSTEM_STATUS_UNSPECIFIED = 0;
+  SYSTEM_STATUS_NOMINAL = 1;
+  SYSTEM_STATUS_WARNING = 2;
+  SYSTEM_STATUS_CRITICAL = 3;
+  SYSTEM_STATUS_OFFLINE = 4;
+  SYSTEM_STATUS_UNKNOWN = 5;
+}
+
+enum Severity {
+  SEVERITY_UNSPECIFIED = 0;
+  SEVERITY_INFO = 1;
+  SEVERITY_OK = 2;
+  SEVERITY_WARNING = 3;
+  SEVERITY_CRITICAL = 4;
+}
+
+enum LogLevel {
+  LOG_LEVEL_UNSPECIFIED = 0;
+  LOG_LEVEL_DEBUG = 1;
+  LOG_LEVEL_INFO = 2;
+  LOG_LEVEL_WARN = 3;
+  LOG_LEVEL_ERROR = 4;
+  LOG_LEVEL_CRITICAL = 5;
+}
+
+// ---------------------------------------------------------------------------
+// Shared messages
+// ---------------------------------------------------------------------------
+
+// 3D scene marker for a pre-flight check on the model
+message CheckSceneNode {
+  // World-space position on the ROTV model (no tuple type in proto3)
+  float position_x = 1;
+  float position_y = 2;
+  float position_z = 3;
+
+  // Label shown in the 3D tooltip — falls back to check label if empty
+  optional string label = 4;
+
+  // Marker sphere radius in scene units. Default: 0.07
+  optional float radius = 5;
+
+  // Surface-normal offset to float the marker above geometry
+  float normal_offset_x = 6;
+  float normal_offset_y = 7;
+  float normal_offset_z = 8;
+
+  // Named mesh anchor for future connector lines
+  optional string mesh_anchor = 9;
+}
+
+// Mirrors src/types/index.ts:PreFlightCheck
+message PreFlightCheck {
+  string id = 1;
+  CheckCategory category = 2;
+  string label = 3;
+  string description = 4;
+  CheckStatus status = 5;
+  bool automated = 6;
+  optional string operator = 7;
+  optional string completed_at = 8; // ISO 8601, empty until complete
+  optional string notes = 9;
+  optional CheckSceneNode scene_node = 10;
+}
+
+// Mirrors src/types/index.ts:SystemEntry
+message SystemEntry {
+  string id = 1;
+  string name = 2;
+  string type = 3;
+  string ip = 4;
+  string firmware = 5;
+  int32 signal = 6; // dBm, e.g. -62
+  repeated PreFlightCheck checks = 7;
+}

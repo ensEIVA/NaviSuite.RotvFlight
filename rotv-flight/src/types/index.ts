@@ -6,6 +6,16 @@
 // Systems
 // --------------------------------------------------------------------------
 
+/** A system discovered on the network, including display metadata. */
+export interface SystemDef {
+  entry: SystemEntry;
+  displayName: string;
+  /** URL served by the ConnectRPC server (e.g. /assets/scanfish.png) */
+  image: string;
+  hasFirmwareUpdate: boolean;
+  initiallyConnected: boolean;
+}
+
 export interface SystemEntry {
   id: string;
   name: string;

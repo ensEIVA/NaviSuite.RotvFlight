@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package rotv.v1;
+
+import "rotv/v1/common.proto";
+
+option go_package = "github.com/navisuite/rotv-flight/gen/rotv/v1;rotvv1";
+
+service DiagnosticsService {
+  rpc GetEvents(GetEventsRequest) returns (GetEventsResponse);
+  rpc StreamEvents(StreamEventsRequest) returns (stream DiagnosticEvent);
+  rpc GetHealth(GetHealthRequest) returns (SystemHealthSnapshot);
+}
+
+message GetEventsRequest {
+  string system_id = 1;
+  optional int32 limit = 2;
+}
+
+message GetEventsResponse {
+  repeated DiagnosticEvent events = 1;
+}
+
+message StreamEventsRequest {
+  string system_id = 1;
+}
+
+message DiagnosticEvent {
+  string id = 1;
+  string timestamp = 2;   // ISO 8601
+  string subsystem = 3;
+  // "fault" | "recovery" | "threshold_breach" | "restart" | "config_change"
+  string type = 4;
+  string description = 5;
+  Severity severity = 6;
+  bool resolved = 7;
+}
+
+message GetHealthRequest {
+  string system_id = 1;
+}
+
+message SubsystemHealth {
+  string id = 1;
+  string label = 2;
+  SystemStatus status = 3;
+  string last_updated = 4; // ISO 8601
+  optional string message = 5;
+  optional string firmware_version = 6;
+  optional int32 latency_ms = 7;
+}
+
+message SystemHealthSnapshot {
+  SystemStatus overall_status = 1;
+  repeated SubsystemHealth subsystems = 2;
+  string timestamp = 3; // ISO 8601
+}

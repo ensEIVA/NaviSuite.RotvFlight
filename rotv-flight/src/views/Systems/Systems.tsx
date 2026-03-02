@@ -2,27 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFlowStore } from "../../stores/useFlowStore";
 import { useSystemsStore } from "../../stores/useSystemsStore";
-import mockGetSystemsService from "../../services/mockGetSystemsService";
+import { getSystemsService } from "../../services/systemDiscoveryService";
 
-import type { SystemEntry } from "../../types";
+import type { SystemDef } from "../../types";
 import "./Systems.css";
 import { ObcButton } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/button/button";
 
 import SystemCard from "../../components/SystemsCard/SystemsCard";
 import { useDisclosure } from "@mantine/hooks";
 import { Modal } from "@mantine/core";
-
-// ---------------------------------------------------------------------------
-//  Static system catalogue
-// ---------------------------------------------------------------------------
-
-export interface SystemDef {
-  entry: SystemEntry;
-  displayName: string;
-  image: string;
-  hasFirmwareUpdate: boolean;
-  initiallyConnected: boolean;
-}
 
 // ---------------------------------------------------------------------------
 // Systems view — Step 1
@@ -35,7 +23,7 @@ export function Systems() {
   const {
     connectedSystems,
     selectedSystems,
-    connectSystem, 
+    connectSystem,
     // disconnectSystem,
     selectSystem,
     deselectSystem,
@@ -44,16 +32,16 @@ export function Systems() {
 
   const navigate = useNavigate();
 
-  // Subscribe to system discovery — systems trickle in one by one from the publisher
+  // Subscribe to system discovery — systems trickle in one by one
   useEffect(() => {
-    const close = mockGetSystemsService((def) => {
+    const cleanup = getSystemsService((def) => {
       setCatalogue((prev) => [...prev, def]);
       if (def.initiallyConnected) {
         connectSystem(def.entry);
       }
       setLoading(false);
     });
-    return close;
+    return cleanup;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -137,7 +125,7 @@ export function Systems() {
 
         <Modal opened={opened} onClose={close} title="Settings">
           <p>Systems-specific settings would go here.</p>
-          
+
       </Modal>
     </div>
   );

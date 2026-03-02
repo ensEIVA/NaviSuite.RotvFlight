@@ -16,6 +16,7 @@ import { ObcButton } from "@ocean-industries-concept-lab/openbridge-webcomponent
 import { ButtonVariant } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/button/button";
 import { ObcFloatingItemDirection, ObcFloatingItemLineType } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/floating-item/floating-item";
 import { ObiCautionColorIec } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/icons/icon-caution-color-iec";
+import { ObcStatusIndicator } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/status-indicator/status-indicator"
 
 // ---------------------------------------------------------------------------
 // PreFlight view
@@ -101,7 +102,26 @@ export function PreFlight() {
                   autoRotateSpeed={0.6}
                 />
               </Canvas>
+
+              {/* <ObcLegend
+                items={[
+                  { color: "#4caf50", label: "Passed" },
+                  { color: "#f44336", label: "Failed" },
+                  { color: "#ff9800", label: "Pending" },
+                ]}
+                aria-label="Check status legend"
+              /> */}
             </div>
+              <div className="preflight-scene-legend">
+              <ObcStatusIndicator
+                status="inactive" />
+                <ObcStatusIndicator
+                status="active" />
+                <ObcStatusIndicator
+                status="running" />
+                <ObcStatusIndicator
+                status="warning" />
+                </div>
 
             <ObcFloatingItem
               className="preflight-caution"
@@ -173,21 +193,22 @@ export function PreFlight() {
                     aria-label={`${system.name} checks`}
                   >
                     {checks.map((check) => (
-                      <div
+                        <div
                         key={check.id}
                         className={`preflight-check-wrapper${hoveredCheckId === check.id ? ' preflight-check-wrapper--hovered' : ''}`}
                         onMouseEnter={() => setHoveredCheckId(check.id)}
                         onMouseLeave={() => setHoveredCheckId(null)}
-                      >
-                        <ObcFloatingItem lineType="multi-line" ico>
+                        
+                        >
+                        <ObcFloatingItem lineType="multi-line">
                           <ObiPending slot="primary-icon" />
                           <span slot="title">{check.label}</span>
                           <span slot="description">
-                            {check.status.charAt(0).toUpperCase() +
-                              check.status.slice(1)}
+                          {check.status.charAt(0).toUpperCase() +
+                            check.status.slice(1)}
                           </span>
                         </ObcFloatingItem>
-                      </div>
+                        </div>
                     ))}
                   </ul>
                 </div>

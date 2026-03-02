@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package rotv.v1;
+
+import "rotv/v1/common.proto";
+
+option go_package = "github.com/navisuite/rotv-flight/gen/rotv/v1;rotvv1";
+
+service LogService {
+  rpc GetLogs(GetLogsRequest) returns (GetLogsResponse);
+  rpc TailLogs(TailLogsRequest) returns (stream LogEntry);
+}
+
+message GetLogsRequest {
+  string system_id = 1;
+  optional LogLevel min_level = 2;
+  optional int32 limit = 3;
+  optional string since = 4; // ISO 8601
+}
+
+message GetLogsResponse {
+  repeated LogEntry entries = 1;
+}
+
+message TailLogsRequest {
+  string system_id = 1;
+  optional LogLevel min_level = 2;
+}
+
+message LogEntry {
+  string id = 1;
+  string timestamp = 2; // ISO 8601
+  LogLevel level = 3;
+  string source = 4;
+  string message = 5;
+}

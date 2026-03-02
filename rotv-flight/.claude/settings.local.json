@@ -5,7 +5,22 @@
       "Bash(cd \"C:/Users/ENS/dev/NaviSuite.RotvFlight/rotv-flight\" && npx tsc --noEmit 2>&1)",
       "Bash(true:*)",
       "Bash(cd /c/Users/ENS/dev/NaviSuite.RotvFlight/rotv-flight && yarn build 2>&1)",
-      "mcp__figma-remote-mcp__get_design_context"
+      "mcp__figma-remote-mcp__get_design_context",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(./node_modules/.bin/buf:*)",
+      "WebFetch(domain:buf.build)",
+      "Bash(npm show:*)",
+      "Bash(timeout 8 ./node_modules/.bin/tsx:*)",
+      "Bash(netstat:*)",
+      "Bash(./node_modules/.bin/tsc:*)",
+      "Bash(xargs -I{} taskkill //PID {} //F)",
+      "Bash(grep:*)",
+      "Bash(tasklist:*)",
+      "Bash(taskkill:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node:*)",
+      "Bash(curl:*)"
     ]
   }
 }

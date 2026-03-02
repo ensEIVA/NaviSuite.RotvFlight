@@ -1,0 +1,15 @@
+version: v2
+modules:
+  - path: proto
+    name: buf.build/navisuite/rotv-flight
+lint:
+  use: [STANDARD]
+  except:
+    # We use semantic message names rather than strict RPC{Request,Response} convention
+    - RPC_RESPONSE_STANDARD_NAME
+    - RPC_REQUEST_STANDARD_NAME
+    - RPC_REQUEST_RESPONSE_UNIQUE
+breaking:
+  use: [FILE]
+deps:
+  - buf.build/googleapis/googleapis

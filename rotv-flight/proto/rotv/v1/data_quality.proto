@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package rotv.v1;
+
+import "rotv/v1/common.proto";
+
+option go_package = "github.com/navisuite/rotv-flight/gen/rotv/v1;rotvv1";
+
+service DataQualityService {
+  rpc GetReports(GetReportsRequest) returns (GetReportsResponse);
+  rpc StreamActiveLine(StreamActiveLineRequest) returns (stream DataQualityReport);
+}
+
+message GetReportsRequest {
+  string system_id = 1;
+}
+
+message GetReportsResponse {
+  repeated DataQualityReport reports = 1;
+}
+
+message StreamActiveLineRequest {
+  string system_id = 1;
+}
+
+message DataQualityMetric {
+  string id = 1;
+  string label = 2;
+  double value = 3;
+  string unit = 4;
+  double threshold = 5;
+  SystemStatus status = 6;
+  // "improving" | "stable" | "degrading"
+  string trend = 7;
+}
+
+message DataQualityReport {
+  string line_id = 1;
+  string line_label = 2;
+  string generated_at = 3; // ISO 8601
+  repeated DataQualityMetric metrics = 4;
+  // "A" | "B" | "C" | "D" | "F"
+  string overall_grade = 5;
+}

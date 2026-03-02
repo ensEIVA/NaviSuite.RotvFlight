@@ -1,22 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StatusBadge } from '../../components/StatusBadge';
 import type { CalibrationResult, CalibrationStatus } from '../../types';
+import { listCalibrations, runCalibration } from '../../services/calibrationService';
 import './Calibration.css';
-
-// ---------------------------------------------------------------------------
-// Placeholder data
-// ---------------------------------------------------------------------------
-
-const INITIAL_CALIBRATIONS: CalibrationResult[] = [
-  { id: 'cal-01', subsystem: 'imu',          label: 'IMU — Heading Offset',           status: 'passed',      lastRun: '2024-11-13T14:00:00Z', operator: 'J. Mackenzie', residualError: 0.12 },
-  { id: 'cal-02', subsystem: 'imu',          label: 'IMU — Roll / Pitch Bias',        status: 'passed',      lastRun: '2024-11-13T14:08:00Z', operator: 'J. Mackenzie', residualError: 0.04 },
-  { id: 'cal-03', subsystem: 'dvl',          label: 'DVL — Alignment Angles',         status: 'stale',       lastRun: '2024-11-10T09:22:00Z', operator: 'S. Torvik',    residualError: 0.31, notes: 'Last run >3 days ago — recommend re-run before next survey.' },
-  { id: 'cal-04', subsystem: 'dvl',          label: 'DVL — Scale Factor',             status: 'passed',      lastRun: '2024-11-13T14:30:00Z', operator: 'J. Mackenzie', residualError: 0.02 },
-  { id: 'cal-05', subsystem: 'usbl',         label: 'USBL — Lever Arm Offsets',       status: 'passed',      lastRun: '2024-11-14T07:00:00Z', operator: 'S. Torvik',    residualError: 0.06 },
-  { id: 'cal-06', subsystem: 'sonar',        label: 'Sonar — Sound Velocity Profile', status: 'in_progress', lastRun: '2024-11-14T08:10:00Z', operator: 'J. Mackenzie' },
-  { id: 'cal-07', subsystem: 'altimeter',    label: 'Altimeter — Offset Check',       status: 'not_run',     operator: undefined },
-  { id: 'cal-08', subsystem: 'pressure_vessel', label: 'Pressure Sensor — Depth Cal', status: 'passed',     lastRun: '2024-11-13T13:45:00Z', operator: 'S. Torvik',    residualError: 0.01 },
-];
 
 const STATUS_LABELS: Record<CalibrationStatus, string> = {
   not_run:     'Not Run',
@@ -35,8 +21,12 @@ function calStatusToSystemStatus(s: CalibrationStatus) {
 }
 
 export function Calibration() {
-  const [cals, setCals] = useState<CalibrationResult[]>(INITIAL_CALIBRATIONS);
+  const [cals, setCals] = useState<CalibrationResult[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    listCalibrations('').then(setCals).catch(console.error);
+  }, []);
 
   const passedCount     = cals.filter((c) => c.status === 'passed').length;
   const staleCount      = cals.filter((c) => c.status === 'stale').length;
@@ -46,15 +36,22 @@ export function Calibration() {
 
   function startCalibration(id: string) {
     setCals((prev) => prev.map((c) => c.id === id ? { ...c, status: 'in_progress' } : c));
-    setTimeout(() => {
-      setCals((prev) =>
-        prev.map((c) =>
-          c.id === id
-            ? { ...c, status: 'passed', lastRun: new Date().toISOString(), residualError: parseFloat((Math.random() * 0.3).toFixed(3)) }
-            : c
-        )
-      );
-    }, 3500);
+    runCalibration('', id, (update) => {
+      if (update.status === 'passed' || update.status === 'failed') {
+        setCals((prev) =>
+          prev.map((c) =>
+            c.id === id
+              ? {
+                  ...c,
+                  status: update.status as CalibrationStatus,
+                  lastRun: update.completedAt ?? new Date().toISOString(),
+                  residualError: update.residualError,
+                }
+              : c,
+          ),
+        );
+      }
+    });
   }
 
   const selected = cals.find((c) => c.id === selectedId);

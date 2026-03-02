@@ -4,7 +4,7 @@ import { ObcIconButton } from "@ocean-industries-concept-lab/openbridge-webcompo
 import { ObcCard } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/card/card";
 import { ObcStatusIndicator } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/status-indicator/status-indicator";
 import { ObcButton } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/components/button/button";
-import type { SystemDef } from "../../views/Systems/Systems";
+import type { SystemDef } from "../../types";
 import "./SystemsCard.css";
 import { IconButtonVariant } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/icon-button/icon-button";
 import { ButtonVariant } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/button/button";
