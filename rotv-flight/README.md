@@ -1,3 +1,10 @@
+# Start the project 
+
+in respective terminals:
+  $ VITE_USE_GRPC=true yarn run dev
+  $ yarn run server:dev
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
