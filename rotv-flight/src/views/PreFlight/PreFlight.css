@@ -68,7 +68,8 @@
   height: 100%;
 }
 .preflight-scene__canvas {
-  height: 380px;
+  height: 100%;
+  width: 100%;
 }
 .preflight-caution{
   position: absolute;
