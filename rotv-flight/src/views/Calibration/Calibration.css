@@ -5,31 +5,32 @@
 .calibration {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: 24px;
 }
 
 .view-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: 16px;
 }
 
 .view-title {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
+  font-size: 1.5rem;
+  font-weight: 700;
   margin: 0;
+  color: #111827;
 }
 
 .view-subtitle {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  margin: var(--space-1) 0 0;
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 4px 0 0;
 }
 
 .cal__header-actions {
   display: flex;
-  gap: var(--space-3);
+  gap: 12px;
   align-items: center;
   flex-shrink: 0;
 }
@@ -37,35 +38,35 @@
 /* --- Summary strip --- */
 .cal__summary {
   display: flex;
-  gap: var(--space-6);
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5) var(--space-6);
+  gap: 24px;
+  background-color: #ffffff;
+  border: 1px solid #dde2ea;
+  border-radius: 8px;
+  padding: 20px 24px;
 }
 
 .cal__stat {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 4px;
 }
 
 .cal__stat-value {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  font-family: var(--font-family-mono);
-  color: var(--color-text-primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  color: #111827;
   line-height: 1;
 }
 
-.cal__stat-value--ok       { color: var(--color-status-ok); }
-.cal__stat-value--warning  { color: var(--color-status-warning); }
-.cal__stat-value--critical { color: var(--color-status-critical); }
-.cal__stat-value--info     { color: var(--color-status-info); }
+.cal__stat-value--ok       { color: #16a34a; }
+.cal__stat-value--warning  { color: #d97706; }
+.cal__stat-value--critical { color: #dc2626; }
+.cal__stat-value--info     { color: #2563eb; }
 
 .cal__stat-label {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  color: #9ca3af;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -74,7 +75,7 @@
 .cal__body {
   display: grid;
   grid-template-columns: 1fr 360px;
-  gap: var(--space-6);
+  gap: 24px;
 }
 
 @media (max-width: 1000px) {
@@ -83,9 +84,9 @@
 
 /* --- Panel base --- */
 .panel {
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
+  background-color: #ffffff;
+  border: 1px solid #dde2ea;
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -93,15 +94,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--color-border-subtle);
-  gap: var(--space-3);
+  padding: 16px 20px;
+  border-bottom: 1px solid #dde2ea;
+  gap: 12px;
 }
 
 .panel__title {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
+  font-size: 1rem;
+  font-weight: 600;
   margin: 0;
+  color: #111827;
 }
 
 .panel__body--noPad {
@@ -119,16 +121,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: 16px;
   width: 100%;
-  padding: var(--space-4) var(--space-5);
+  padding: 16px 20px;
   background-color: transparent;
   border: none;
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid #dde2ea;
   border-radius: 0;
   text-align: left;
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  transition: background-color 150ms ease;
 }
 
 .cal__item:last-child {
@@ -136,43 +138,43 @@
 }
 
 .cal__item:hover {
-  background-color: var(--color-bg-overlay);
+  background-color: #e8ecf3;
 }
 
 .cal__item--selected {
-  background-color: var(--color-accent-subtle) !important;
-  border-left: 3px solid var(--color-accent-default);
+  background-color: rgba(29, 78, 216, 0.06) !important;
+  border-left: 3px solid #1d4ed8;
 }
 
 .cal__item-left {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 4px;
   min-width: 0;
 }
 
 .cal__item-label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
 }
 
 .cal__item-meta {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  color: #9ca3af;
 }
 
 .cal__item-right {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: 12px;
   flex-shrink: 0;
 }
 
 .cal__item-residual {
-  font-family: var(--font-family-mono);
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.75rem;
+  color: #9ca3af;
 }
 
 /* --- Detail pane --- */
@@ -190,60 +192,60 @@
 }
 
 .cal__detail-body {
-  padding: var(--space-5);
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: 20px;
 }
 
 .cal__detail-meta {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 8px;
 }
 
 .cal__meta-row {
   display: flex;
   justify-content: space-between;
-  font-size: var(--font-size-sm);
-  gap: var(--space-4);
-  padding: var(--space-2) var(--space-3);
-  background-color: var(--color-bg-elevated);
-  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  gap: 16px;
+  padding: 8px 12px;
+  background-color: #f4f6f9;
+  border-radius: 4px;
 }
 
 .cal__meta-row dt {
-  color: var(--color-text-muted);
-  font-weight: var(--font-weight-normal);
+  color: #9ca3af;
+  font-weight: 400;
 }
 
 .cal__meta-row dd {
-  font-family: var(--font-family-mono);
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.75rem;
+  color: #4b5563;
   text-align: right;
 }
 
 /* --- Stale notes box --- */
 .cal__notes-box {
-  background-color: var(--color-status-warning-bg);
-  border: 1px solid var(--color-status-warning-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
+  background-color: rgba(217, 119, 6, 0.08);
+  border: 1px solid #b45309;
+  border-radius: 6px;
+  padding: 16px;
 }
 
 .cal__notes-box h3 {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-status-warning);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #d97706;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin: 0 0 var(--space-2);
+  margin: 0 0 8px;
 }
 
 .cal__notes-box p {
-  font-size: var(--font-size-sm);
-  color: #fcd34d;
+  font-size: 0.875rem;
+  color: #92400e;
   margin: 0;
 }
 
@@ -251,26 +253,26 @@
 .cal__progress-section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 8px;
 }
 
 .cal__progress-text {
-  font-size: var(--font-size-sm);
-  color: var(--color-status-info);
+  font-size: 0.875rem;
+  color: #2563eb;
   margin: 0;
 }
 
 .cal__progress-bar {
   height: 6px;
-  background-color: var(--color-bg-elevated);
-  border-radius: var(--radius-full);
+  background-color: #f4f6f9;
+  border-radius: 9999px;
   overflow: hidden;
 }
 
 .cal__progress-fill {
   height: 100%;
-  background-color: var(--color-accent-default);
-  border-radius: var(--radius-full);
+  background-color: #1d4ed8;
+  border-radius: 9999px;
   animation: cal-progress-indeterminate 1.8s ease-in-out infinite;
 }
 
@@ -282,12 +284,12 @@
 .cal__detail-actions {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: 12px;
 }
 
 .cal__detail-empty {
-  padding: var(--space-8);
+  padding: 32px;
   text-align: center;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
+  color: #9ca3af;
+  font-size: 0.875rem;
 }

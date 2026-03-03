@@ -1,33 +1,48 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { SystemSettings } from '../../types';
-import { getSettings, saveSettings } from '../../services/settingsService';
+import { useSettingsStore } from '../../stores/useSettingsStore';
+import { useUnits } from '../../hooks/useUnits';
+import { applyPreset as computePreset, convert, getLabel, resolveUnit } from '../../utils/units';
 import './Settings.css';
 
 type SettingsTab = 'general' | 'display' | 'alerts' | 'about';
 
+const PREVIEW_SAMPLES: { label: string; quantity: string; si: number; decimals: number }[] = [
+  { label: 'Depth',          quantity: 'depth',         si: 38.4,   decimals: 1 },
+  { label: 'Altitude',       quantity: 'depth',         si: 5.2,    decimals: 1 },
+  { label: 'Temperature',    quantity: 'temperature',   si: 14.3,   decimals: 1 },
+  { label: 'Cable Tension',  quantity: 'tension',       si: 2.1,    decimals: 2 },
+  { label: 'Speed',          quantity: 'speed',         si: 1.65,   decimals: 2 },
+  { label: 'Ground Speed',   quantity: 'groundSpeed',   si: 3.21,   decimals: 2 },
+  { label: 'Salinity',       quantity: 'salinity',      si: 34.8,   decimals: 2 },
+  { label: 'Sound Velocity', quantity: 'soundVelocity', si: 1506.2, decimals: 1 },
+];
+
+// Metric prefs are the SI baseline — computed once at module level.
+const METRIC_PREFS = computePreset('metric');
+
 export function Settings() {
-  const [settings, setSettings] = useState<SystemSettings | null>(null);
+  const { settings, applyPreset, setSettings, save } = useSettingsStore();
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
   const [saved, setSaved] = useState(false);
+  const { fmt, toSI } = useUnits();
 
-  useEffect(() => {
-    getSettings().then(setSettings).catch(console.error);
-  }, []);
-
-  function handleSave() {
-    if (!settings) return;
-    saveSettings(settings).then(() => {
+  async function handleSave() {
+    const ok = await save();
+    if (ok) {
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
-    }).catch(console.error);
+    }
   }
 
   function updateDisplay<K extends keyof SystemSettings['display']>(key: K, value: SystemSettings['display'][K]) {
-    setSettings((prev) => prev ? { ...prev, display: { ...prev.display, [key]: value } } : prev);
+    if (!settings) return;
+    setSettings({ ...settings, display: { ...settings.display, [key]: value } });
   }
 
   function updateAlerts<K extends keyof SystemSettings['alerts']>(key: K, value: SystemSettings['alerts'][K]) {
-    setSettings((prev) => prev ? { ...prev, alerts: { ...prev.alerts, [key]: value } } : prev);
+    if (!settings) return;
+    setSettings({ ...settings, alerts: { ...settings.alerts, [key]: value } });
   }
 
   if (!settings) return null;
@@ -74,7 +89,7 @@ export function Settings() {
                 id="instance-name"
                 type="text"
                 value={settings.instanceName}
-                onChange={(e) => setSettings((prev) => prev ? { ...prev, instanceName: e.target.value } : prev)}
+                onChange={(e) => setSettings({ ...settings, instanceName: e.target.value })}
               />
               <p className="settings__field-hint">Identifies this ROTV in multi-vehicle deployments.</p>
             </div>
@@ -85,7 +100,7 @@ export function Settings() {
                 id="operator-name"
                 type="text"
                 value={settings.operatorName}
-                onChange={(e) => setSettings((prev) => prev ? { ...prev, operatorName: e.target.value } : prev)}
+                onChange={(e) => setSettings({ ...settings, operatorName: e.target.value })}
               />
               <p className="settings__field-hint">Logged against all events, calibrations, and pre-flight checks.</p>
             </div>
@@ -129,7 +144,7 @@ export function Settings() {
               <select
                 id="unit-system"
                 value={settings.display.unitSystem}
-                onChange={(e) => updateDisplay('unitSystem', e.target.value as 'metric' | 'imperial')}
+                onChange={(e) => applyPreset(e.target.value)}
               >
                 <option value="metric">Metric (m, km, °C)</option>
                 <option value="imperial">Imperial (ft, nm, °F)</option>
@@ -189,6 +204,51 @@ export function Settings() {
               <p className="settings__field-hint">Higher rates increase CPU usage.</p>
             </div>
           </div>
+
+          <h3 className="settings__section-sub">Unit Conversion Preview</h3>
+
+          <div className="settings__diff" aria-label="Unit system diff preview">
+            <div className="settings__diff-header">
+              <span className="diff-file--old">--- metric</span>
+              <span className="diff-file--new">+++ {settings.display.unitSystem}</span>
+            </div>
+            <div className="settings__diff-hunk">
+              @@ representative sensor readings @@
+            </div>
+            <div className="settings__diff-split">
+              <div className="settings__diff-col settings__diff-col--old">
+                {PREVIEW_SAMPLES.map(({ label, quantity, si, decimals }) => {
+                  const metricKey  = resolveUnit(quantity, METRIC_PREFS);
+                  const metricVal  = convert(si, quantity, metricKey);
+                  const metricUnit = getLabel(quantity, metricKey);
+                  const changed    = metricUnit !== fmt(si, quantity).unit;
+                  return (
+                    <div key={label} className={`diff-line ${changed ? 'diff-line--remove' : 'diff-line--context'}`}>
+                      <span className="diff-line__sigil">{changed ? '-' : ' '}</span>
+                      <span className="diff-line__label">{label}</span>
+                      <span className="diff-line__value">{metricVal.toFixed(decimals)}</span>
+                      <span className="diff-line__unit">{metricUnit}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="settings__diff-col settings__diff-col--new">
+                {PREVIEW_SAMPLES.map(({ label, quantity, si, decimals }) => {
+                  const metricUnit          = getLabel(quantity, resolveUnit(quantity, METRIC_PREFS));
+                  const { value, unit }     = fmt(si, quantity);
+                  const changed             = metricUnit !== unit;
+                  return (
+                    <div key={label} className={`diff-line ${changed ? 'diff-line--add' : 'diff-line--context'}`}>
+                      <span className="diff-line__sigil">{changed ? '+' : ' '}</span>
+                      <span className="diff-line__label">{label}</span>
+                      <span className="diff-line__value">{value.toFixed(decimals)}</span>
+                      <span className="diff-line__unit">{unit}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </section>
       )}
 
@@ -229,41 +289,35 @@ export function Settings() {
             </div>
 
             <div className="settings__field">
-              <label htmlFor="min-altitude">Minimum Altitude (m)</label>
+              <label htmlFor="min-altitude">Minimum Altitude ({fmt(0, 'depth').unit})</label>
               <input
                 id="min-altitude"
                 type="number"
                 step="0.5"
-                min="1"
-                max="10"
-                value={settings.alerts.minAltitudeM}
-                onChange={(e) => updateAlerts('minAltitudeM', parseFloat(e.target.value))}
+                value={fmt(settings.alerts.minAltitudeM, 'depth').value.toFixed(1)}
+                onChange={(e) => updateAlerts('minAltitudeM', toSI(parseFloat(e.target.value), 'depth'))}
               />
             </div>
 
             <div className="settings__field">
-              <label htmlFor="max-depth">Maximum Depth (m)</label>
+              <label htmlFor="max-depth">Maximum Depth ({fmt(0, 'depth').unit})</label>
               <input
                 id="max-depth"
                 type="number"
                 step="10"
-                min="10"
-                max="1000"
-                value={settings.alerts.maxDepthM}
-                onChange={(e) => updateAlerts('maxDepthM', parseFloat(e.target.value))}
+                value={fmt(settings.alerts.maxDepthM, 'depth').value.toFixed(1)}
+                onChange={(e) => updateAlerts('maxDepthM', toSI(parseFloat(e.target.value), 'depth'))}
               />
             </div>
 
             <div className="settings__field">
-              <label htmlFor="max-tension">Maximum Cable Tension (kN)</label>
+              <label htmlFor="max-tension">Maximum Cable Tension ({fmt(0, 'tension').unit})</label>
               <input
                 id="max-tension"
                 type="number"
                 step="0.5"
-                min="1"
-                max="20"
-                value={settings.alerts.maxTensionKn}
-                onChange={(e) => updateAlerts('maxTensionKn', parseFloat(e.target.value))}
+                value={fmt(settings.alerts.maxTensionKn, 'tension').value.toFixed(1)}
+                onChange={(e) => updateAlerts('maxTensionKn', toSI(parseFloat(e.target.value), 'tension'))}
               />
             </div>
           </div>

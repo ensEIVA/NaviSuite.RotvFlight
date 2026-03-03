@@ -83,6 +83,18 @@ const MAIN_NAV: NavItemDef[] = [
   },
 ];
 
+
+/// ---------------------------------------------------------------------------
+// Debug nav items
+// ---------------------------------------------------------------------------
+const DEBUG_NAV: NavItemDef[] = [
+  { label: 'Telemetry', path: '/telemetry', icon: <ObiSupportGoogle slot="icon" /> },
+  { label: 'Calibration', path: '/calibration', icon: <ObiSupportGoogle slot="icon" /> },
+  { label: 'Diagnostics', path: '/diagnostics', icon: <ObiSupportGoogle slot="icon" /> },
+  { label: 'Logs', path: '/logs', icon: <ObiSupportGoogle slot="icon" /> },
+  { label: 'Settings', path: '/settings', icon: <ObiSupportGoogle slot="icon" /> },
+]
+
 // ---------------------------------------------------------------------------
 // Footer nav items
 // ---------------------------------------------------------------------------
@@ -90,7 +102,6 @@ const MAIN_NAV: NavItemDef[] = [
 const FOOTER_NAV: NavItemDef[] = [
   { label: "Help", path: "/help", icon: <ObiSupportGoogle slot="icon" /> },
   // { label: 'Alerts',   path: '/alerts',   icon: <IconBell /> },
-  // { label: 'Settings', path: '/settings', icon: <IconSettings /> },
 ];
 
 // ---------------------------------------------------------------------------
@@ -154,6 +165,18 @@ export function Sidebar() {
       })}
       //
       {FOOTER_NAV.map((item) => (
+        <ObcNavigationItem
+          key={item.path}
+          slot="footer"
+          hasIcon
+          label={item.label}
+          onClick={() => navigate(item.path)}
+        >
+          {item.icon}
+        </ObcNavigationItem>
+      ))}
+
+      {DEBUG_NAV.map((item) => (
         <ObcNavigationItem
           key={item.path}
           slot="footer"

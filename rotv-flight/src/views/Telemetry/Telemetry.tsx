@@ -1,7 +1,8 @@
+import { useUnits } from '../../hooks/useUnits';
 import './Telemetry.css';
 
 // ---------------------------------------------------------------------------
-// Placeholder live telemetry values
+// Placeholder live telemetry values (always SI internally)
 // ---------------------------------------------------------------------------
 
 const TELEMETRY = {
@@ -62,7 +63,7 @@ function GaugeBar({ value, min, max, warningMin, warningMax, criticalMin, critic
       <div className="gauge-bar__header">
         <span className="gauge-bar__label">{label}</span>
         <span className="gauge-bar__reading">
-          <strong>{value}</strong> {unit}
+          <strong>{value.toFixed(1)}</strong> {unit}
         </span>
       </div>
       <div
@@ -76,14 +77,27 @@ function GaugeBar({ value, min, max, warningMin, warningMax, criticalMin, critic
         <div className={`gauge-bar__fill ${statusClass}`} style={{ width: `${pct}%` }} />
       </div>
       <div className="gauge-bar__range">
-        <span>{min} {unit}</span>
-        <span>{max} {unit}</span>
+        <span>{min.toFixed(1)} {unit}</span>
+        <span>{max.toFixed(1)} {unit}</span>
       </div>
     </div>
   );
 }
 
 export function Telemetry() {
+  const { fmt } = useUnits();
+
+  // Pre-compute unit labels for repeated use
+  const depthUnit = fmt(0, 'depth').unit;
+  const tensionUnit = fmt(0, 'tension').unit;
+  const speedUnit = fmt(0, 'speed').unit;
+  const tempUnit = fmt(0, 'temperature').unit;
+
+  // Conversion helpers
+  const d = (v: number) => fmt(v, 'depth').value;
+  const t = (v: number) => fmt(v, 'tension').value;
+  const s = (v: number) => fmt(v, 'speed').value;
+
   return (
     <div className="telemetry">
       <header className="view-header">
@@ -103,11 +117,11 @@ export function Telemetry() {
 
       {/* Gauge row — most safety-critical values */}
       <section className="telemetry__gauges" aria-label="Primary gauges">
-        <GaugeBar label="Roll"          value={TELEMETRY.attitude.roll}    min={-30}  max={30}   warningMax={12}   criticalMax={18}  warningMin={-12}  criticalMin={-18}  unit="°" />
-        <GaugeBar label="Pitch"         value={TELEMETRY.attitude.pitch}   min={-45}  max={45}   warningMax={15}   criticalMax={25}  warningMin={-15}  criticalMin={-25}  unit="°" />
-        <GaugeBar label="Altitude"      value={TELEMETRY.position.altitude} min={0}   max={20}   warningMin={3}    criticalMin={2}                                         unit="m" />
-        <GaugeBar label="Cable Tension" value={TELEMETRY.tow.tension}      min={0}    max={10}   warningMax={4.5}  criticalMax={6}                                         unit="kN" />
-        <GaugeBar label="Voltage"       value={TELEMETRY.power.voltage}    min={42}   max={56}   warningMin={45}   criticalMin={43}  warningMax={52}   criticalMax={54}    unit="V" />
+        <GaugeBar label="Roll"          value={TELEMETRY.attitude.roll}    min={-30}   max={30}    warningMax={12}      criticalMax={18}     warningMin={-12}     criticalMin={-18}    unit="°" />
+        <GaugeBar label="Pitch"         value={TELEMETRY.attitude.pitch}   min={-45}   max={45}    warningMax={15}      criticalMax={25}     warningMin={-15}     criticalMin={-25}    unit="°" />
+        <GaugeBar label="Altitude"      value={d(TELEMETRY.position.altitude)} min={d(0)} max={d(20)} warningMin={d(3)} criticalMin={d(2)}                                            unit={depthUnit} />
+        <GaugeBar label="Cable Tension" value={t(TELEMETRY.tow.tension)}   min={t(0)}  max={t(10)} warningMax={t(4.5)}  criticalMax={t(6)}                                            unit={tensionUnit} />
+        <GaugeBar label="Voltage"       value={TELEMETRY.power.voltage}    min={42}    max={56}    warningMin={45}      criticalMin={43}     warningMax={52}      criticalMax={54}     unit="V" />
       </section>
 
       {/* Data tables */}
@@ -154,8 +168,8 @@ export function Telemetry() {
               <tbody>
                 <TelemetryRow label="Latitude"  value={TELEMETRY.position.latitude.toFixed(6)}  unit="°N"  status="neutral" threshold="—" />
                 <TelemetryRow label="Longitude" value={TELEMETRY.position.longitude.toFixed(6)} unit="°E"  status="neutral" threshold="—" />
-                <TelemetryRow label="Depth"     value={TELEMETRY.position.depth.toFixed(1)}     unit="m"   status="ok"      threshold="Max 200 m" />
-                <TelemetryRow label="Altitude"  value={TELEMETRY.position.altitude.toFixed(1)}  unit="m"   status="ok"      threshold="Min 2 m" />
+                <TelemetryRow label="Depth"     value={d(TELEMETRY.position.depth).toFixed(1)}     unit={depthUnit}   status="ok"      threshold={`Max ${d(200).toFixed(0)} ${depthUnit}`} />
+                <TelemetryRow label="Altitude"  value={d(TELEMETRY.position.altitude).toFixed(1)}  unit={depthUnit}   status="ok"      threshold={`Min ${d(2).toFixed(0)} ${depthUnit}`} />
               </tbody>
             </table>
           </div>
@@ -177,9 +191,9 @@ export function Telemetry() {
                 </tr>
               </thead>
               <tbody>
-                <TelemetryRow label="Surge (Fwd)" value={TELEMETRY.velocity.surge.toFixed(2)} unit="m/s" status="ok"      threshold="—" />
-                <TelemetryRow label="Sway (Lat)"  value={TELEMETRY.velocity.sway.toFixed(2)}  unit="m/s" status="ok"      threshold="—" />
-                <TelemetryRow label="Heave (Vrt)" value={TELEMETRY.velocity.heave.toFixed(2)} unit="m/s" status="ok"      threshold="—" />
+                <TelemetryRow label="Surge (Fwd)" value={s(TELEMETRY.velocity.surge).toFixed(2)} unit={speedUnit} status="ok" threshold="—" />
+                <TelemetryRow label="Sway (Lat)"  value={s(TELEMETRY.velocity.sway).toFixed(2)}  unit={speedUnit} status="ok" threshold="—" />
+                <TelemetryRow label="Heave (Vrt)" value={s(TELEMETRY.velocity.heave).toFixed(2)} unit={speedUnit} status="ok" threshold="—" />
                 <TelemetryRow label="Ground Speed" value={TELEMETRY.velocity.groundSpeed.toFixed(2)} unit="kn" status="ok" threshold="—" />
               </tbody>
             </table>
@@ -226,8 +240,8 @@ export function Telemetry() {
                 </tr>
               </thead>
               <tbody>
-                <TelemetryRow label="Cable Tension" value={TELEMETRY.tow.tension.toFixed(1)} unit="kN" status="ok"      threshold="Max 6 kN" />
-                <TelemetryRow label="Cable Out"     value={TELEMETRY.tow.cableOut.toFixed(1)} unit="m" status="neutral" threshold="—" />
+                <TelemetryRow label="Cable Tension" value={t(TELEMETRY.tow.tension).toFixed(1)} unit={tensionUnit} status="ok"      threshold={`Max ${t(6).toFixed(1)} ${tensionUnit}`} />
+                <TelemetryRow label="Cable Out"     value={d(TELEMETRY.tow.cableOut).toFixed(1)} unit={depthUnit}  status="neutral" threshold="—" />
               </tbody>
             </table>
           </div>
@@ -249,9 +263,9 @@ export function Telemetry() {
                 </tr>
               </thead>
               <tbody>
-                <TelemetryRow label="Water Temp"      value={TELEMETRY.env.waterTemp.toFixed(1)}      unit="°C"   status="neutral" threshold="—" />
-                <TelemetryRow label="Salinity"        value={TELEMETRY.env.salinity.toFixed(2)}       unit="PSU"  status="neutral" threshold="—" />
-                <TelemetryRow label="Sound Velocity"  value={TELEMETRY.env.soundVelocity.toFixed(1)}  unit="m/s"  status="neutral" threshold="—" />
+                <TelemetryRow label="Water Temp"      value={fmt(TELEMETRY.env.waterTemp, 'temperature').value.toFixed(1)}   unit={tempUnit}  status="neutral" threshold="—" />
+                <TelemetryRow label="Salinity"        value={TELEMETRY.env.salinity.toFixed(2)}                              unit="PSU"       status="neutral" threshold="—" />
+                <TelemetryRow label="Sound Velocity"  value={TELEMETRY.env.soundVelocity.toFixed(1)}                        unit="m/s"       status="neutral" threshold="—" />
               </tbody>
             </table>
           </div>

@@ -23,6 +23,7 @@ import { ObcStatusIndicator } from "@ocean-industries-concept-lab/openbridge-web
 import { ObiRunning } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/icons/icon-running";
 import { StatusIndicatorStatus } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/status-indicator/status-indicator";
 import { ObiAlarmUnacknowledgedIec } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/icons/icon-alarm-unacknowledged-iec";
+import { ObiPlaceholder } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/icons/icon-placeholder";
 // ---------------------------------------------------------------------------
 // PreFlight view
 // ---------------------------------------------------------------------------
@@ -270,22 +271,17 @@ export function PreFlight() {
             disabled={isRunning || totalCount === 0}
             aria-busy={isRunning}
           >
-            {isRunning ? "Running checks…" : "Run All Checks"}
+            {isRunning ? "Running checks…" : "Run Preflight Checks"}
           </ObcButton>
 
           <ObcButton
+            showLeadingIcon
             variant={canProceed ? ButtonVariant.raised : ButtonVariant.normal}
             onClick={handleProceed}
             disabled={!canProceed}
-            aria-label={
-              canProceed
-                ? "Proceed to Dashboard"
-                : "All checks must pass before proceeding"
-            }
           >
-            {canProceed
-              ? "Proceed to Dashboard →"
-              : "Resolve checks to proceed"}
+            <ObiPlaceholder slot="leading-icon" />
+            {"Go to Operation"}
           </ObcButton>
         </span>
       </div>

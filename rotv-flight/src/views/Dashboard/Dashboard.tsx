@@ -3,6 +3,11 @@ import { Link } from 'react-router-dom';
 import { useProjectStore } from '../../stores/useProjectStore';
 import { useOperationStore } from '../../stores/useOperationStore';
 import './Dashboard.css';
+import { ObcNavigationItem } from '@ocean-industries-concept-lab/openbridge-webcomponents-react/components/navigation-item/navigation-item';
+import { ObcNavigationMenu } from '@ocean-industries-concept-lab/openbridge-webcomponents-react/components/navigation-menu/navigation-menu';
+import { ObcNavigationMenuVariant } from '@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/navigation-menu/navigation-menu';
+import { ObiSettingsIec } from '@ocean-industries-concept-lab/openbridge-webcomponents-react/icons/icon-settings-iec';
+import { ObcNavigationItemGroup } from '@ocean-industries-concept-lab/openbridge-webcomponents-react/components/navigation-item-group/navigation-item-group';
 
 // ---------------------------------------------------------------------------
 // Flight mode types
@@ -53,9 +58,29 @@ export function Dashboard() {
       {/* ----------------------------------------------------------------
           Left aside — flight mode fieldsets
           ---------------------------------------------------------------- */}
-      <aside className="dashboard-v2__aside" aria-label="Flight mode controls">
+      <ObcNavigationMenu title='Operations Menu' variant={ObcNavigationMenuVariant.Compact}>
+        <ObcNavigationItemGroup label="Flight Modes" slot='main'>
+          <ObcNavigationItem label="Dashboard" slot='main' hasIcon>
+          <ObiSettingsIec slot="icon" />
+          </ObcNavigationItem>
+          
+          <ObcNavigationItem label="Dashboard" slot='main' hasIcon>
+          <ObiSettingsIec slot="icon" />
+          </ObcNavigationItem>
 
-        {/* 1. Parking */}
+          <ObcNavigationItem label="Dashboard" slot='main' hasIcon>
+          <ObiSettingsIec slot="icon" />
+          </ObcNavigationItem>
+
+          </ObcNavigationItemGroup>
+        <ObcNavigationItem label="Dashboard" slot='main' hasIcon>
+          <ObiSettingsIec slot="icon" />
+          </ObcNavigationItem>
+        <ObcNavigationItem label="Pre-Flight Checks" slot='main' />
+      </ObcNavigationMenu>
+      {/* <aside className="dashboard-v2__aside" aria-label="Flight mode controls">
+
+        
         <fieldset
           className={`mode-fieldset${activeMode === 'parking' ? ' mode-fieldset--active' : ''}`}
           aria-label="Parking mode"
@@ -71,7 +96,6 @@ export function Dashboard() {
           </button>
         </fieldset>
 
-        {/* 2. Fixed Depth */}
         <fieldset
           className={`mode-fieldset${activeMode === 'fixed-depth' ? ' mode-fieldset--active' : ''}`}
           aria-label="Fixed depth mode"
@@ -102,7 +126,6 @@ export function Dashboard() {
           </button>
         </fieldset>
 
-        {/* 3. Follow Seabed */}
         <fieldset
           className={`mode-fieldset${activeMode === 'follow-seabed' ? ' mode-fieldset--active' : ''}`}
           aria-label="Follow seabed mode"
@@ -133,7 +156,6 @@ export function Dashboard() {
           </button>
         </fieldset>
 
-        {/* 4. Ondulation */}
         <fieldset
           className={`mode-fieldset${activeMode === 'ondulation' ? ' mode-fieldset--active' : ''}`}
           aria-label="Ondulation mode"
@@ -180,7 +202,7 @@ export function Dashboard() {
               : 'Engage'}
           </button>
         </fieldset>
-      </aside>
+      </aside> */}
 
       {/* ----------------------------------------------------------------
           Main body — charts + attitude indicators

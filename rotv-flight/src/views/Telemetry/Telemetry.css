@@ -5,32 +5,33 @@
 .telemetry {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: 24px;
 }
 
 .view-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: 16px;
 }
 
 .view-title {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
+  font-size: 1.5rem;
+  font-weight: 700;
   margin: 0;
+  color: #111827;
 }
 
 .view-subtitle {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  margin: var(--space-1) 0 0;
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 4px 0 0;
 }
 
 .telemetry__header-actions {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: 12px;
   flex-shrink: 0;
 }
 
@@ -38,17 +39,17 @@
 .telemetry__live-indicator {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-status-ok);
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #16a34a;
 }
 
 .telemetry__live-dot {
   width: 8px;
   height: 8px;
-  border-radius: var(--radius-full);
-  background-color: var(--color-status-ok);
+  border-radius: 9999px;
+  background-color: #16a34a;
   animation: live-pulse 1.5s ease-in-out infinite;
 }
 
@@ -61,7 +62,7 @@
 .telemetry__gauges {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: var(--space-4);
+  gap: 16px;
 }
 
 @media (max-width: 1400px) {
@@ -78,67 +79,67 @@
 
 /* --- Individual gauge bar --- */
 .gauge-bar {
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4) var(--space-5);
+  background-color: #ffffff;
+  border: 1px solid #dde2ea;
+  border-radius: 8px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 8px;
 }
 
 .gauge-bar__header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: var(--space-3);
+  gap: 12px;
 }
 
 .gauge-bar__label {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  color: #4b5563;
 }
 
 .gauge-bar__reading {
-  font-family: var(--font-family-mono);
-  font-size: var(--font-size-md);
-  color: var(--color-text-primary);
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 1rem;
+  color: #111827;
 }
 
 .gauge-bar__reading strong {
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
 }
 
 .gauge-bar__track {
   height: 8px;
-  background-color: var(--color-bg-elevated);
-  border-radius: var(--radius-full);
+  background-color: #f4f6f9;
+  border-radius: 9999px;
   overflow: hidden;
 }
 
 .gauge-bar__fill {
   height: 100%;
-  border-radius: var(--radius-full);
-  transition: width var(--transition-slow), background-color var(--transition-base);
+  border-radius: 9999px;
+  transition: width 300ms ease, background-color 200ms ease;
 }
 
-.gauge-bar__fill--ok       { background-color: var(--color-status-ok); }
-.gauge-bar__fill--warning  { background-color: var(--color-status-warning); }
-.gauge-bar__fill--critical { background-color: var(--color-status-critical); }
+.gauge-bar__fill--ok       { background-color: #16a34a; }
+.gauge-bar__fill--warning  { background-color: #d97706; }
+.gauge-bar__fill--critical { background-color: #dc2626; }
 
 .gauge-bar__range {
   display: flex;
   justify-content: space-between;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  font-family: var(--font-family-mono);
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 }
 
 /* --- Tables grid --- */
 .telemetry__tables {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-5);
+  gap: 20px;
 }
 
 @media (max-width: 1200px) {
@@ -155,9 +156,9 @@
 
 /* --- Panel (shared) --- */
 .panel {
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
+  background-color: #ffffff;
+  border: 1px solid #dde2ea;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -167,24 +168,25 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--color-border-subtle);
-  gap: var(--space-3);
+  padding: 16px 20px;
+  border-bottom: 1px solid #dde2ea;
+  gap: 12px;
 }
 
 .panel__title {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
+  font-size: 1rem;
+  font-weight: 600;
   margin: 0;
+  color: #111827;
 }
 
 .panel__meta {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  color: #9ca3af;
 }
 
 .panel__body {
-  padding: var(--space-4);
+  padding: 16px;
 }
 
 .panel__body--table {
@@ -195,27 +197,27 @@
 .telem-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--font-size-sm);
+  font-size: 0.875rem;
 }
 
 .telem-table thead tr {
-  background-color: var(--color-bg-elevated);
+  background-color: #f4f6f9;
 }
 
 .telem-table th {
-  padding: var(--space-2) var(--space-4);
+  padding: 8px 16px;
   text-align: left;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #9ca3af;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid #dde2ea;
 }
 
 .telem-row td {
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--color-border-subtle);
+  padding: 12px 16px;
+  border-bottom: 1px solid #dde2ea;
   vertical-align: middle;
 }
 
@@ -224,42 +226,42 @@
 }
 
 .telem-row__label {
-  color: var(--color-text-secondary);
+  color: #4b5563;
 }
 
 .telem-row__value {
-  font-family: var(--font-family-mono);
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
   display: flex;
   align-items: baseline;
-  gap: var(--space-1);
+  gap: 4px;
 }
 
 .telem-row__number {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
+  font-size: 1rem;
+  font-weight: 600;
 }
 
-.telem-row__number--ok       { color: var(--color-status-ok); }
-.telem-row__number--warning  { color: var(--color-status-warning); }
-.telem-row__number--critical { color: var(--color-status-critical); }
-.telem-row__number--neutral  { color: var(--color-text-primary); }
+.telem-row__number--ok       { color: #16a34a; }
+.telem-row__number--warning  { color: #d97706; }
+.telem-row__number--critical { color: #dc2626; }
+.telem-row__number--neutral  { color: #111827; }
 
 .telem-row__unit {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  color: #9ca3af;
 }
 
 .telem-row__threshold {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-xs);
-  font-family: var(--font-family-mono);
+  color: #9ca3af;
+  font-size: 0.75rem;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 }
 
 /* status row highlights */
 .telem-row--warning {
-  background-color: rgba(245, 158, 11, 0.04);
+  background-color: rgba(245, 158, 11, 0.05);
 }
 
 .telem-row--critical {
-  background-color: rgba(239, 68, 68, 0.06);
+  background-color: rgba(220, 38, 38, 0.05);
 }
