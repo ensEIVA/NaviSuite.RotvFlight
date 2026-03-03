@@ -109,7 +109,7 @@ export function PreFlight() {
             <div className="preflight-scene__canvas">
               <Canvas
                 camera={{ position: [4, 2, 4], fov: 45 }}
-                style={{ background: "white", width: "100%", height: "100%" }}
+                style={{ width: "100%", height: "100%" }}
                 aria-label="3D ROTV vehicle model"
               >
                 <ambientLight intensity={0.4} />
