@@ -94,7 +94,15 @@ const server = http.createServer((req, res) => {
 
     // Serve static assets
     if (url.startsWith('/assets/')) {
-      const filePath = path.join(ASSETS_DIR, url.slice('/assets/'.length));
+      const filePath = path.resolve(ASSETS_DIR, url.slice('/assets/'.length));
+
+      // Guard against path traversal: resolved path must stay inside ASSETS_DIR.
+      if (!filePath.startsWith(ASSETS_DIR + path.sep) && filePath !== ASSETS_DIR) {
+        res.writeHead(404);
+        res.end('Not found');
+        return;
+      }
+
       const ext = path.extname(filePath).toLowerCase();
       const mime = MIME[ext] ?? 'application/octet-stream';
 
