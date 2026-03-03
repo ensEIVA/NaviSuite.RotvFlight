@@ -39,8 +39,6 @@ export interface Operation {
   description: string;
   status: OperationStatus;
   createdAt: ISOTimestamp;
-  /** Projects this operation belongs to */
-  projectIds: string[];
 }
 
 export interface Project {
