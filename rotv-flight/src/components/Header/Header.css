@@ -133,3 +133,15 @@
   padding: 0 8px;
   line-height: 1;
 }
+
+.topbar::part(dimming-button) {
+  /* anchor-name: --dimming-menu-button; */
+}
+
+.brilliance {
+  position: absolute;
+  position-anchor: --dimming-menu-button;
+  top: 52px;
+  right: 12px;
+  z-index: 1;
+}
