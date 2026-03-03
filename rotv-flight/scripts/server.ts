@@ -39,7 +39,7 @@ import { settingsHandler }        from './handlers/settings.js';
 // ---------------------------------------------------------------------------
 
 const PORT = 4001;
-const ALLOWED_ORIGIN = 'http://localhost:5174';
+const ALLOWED_ORIGIN = 'http://localhost:5173';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ASSETS_DIR = path.resolve(__dirname, '../src/assets');
