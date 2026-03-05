@@ -52,6 +52,29 @@ Recommendation: don't add it until two views actually need the same stream. Prem
 
 ---
 
+## TODOs
+
+### useTelemetryStore — centralise incoming telemetry
+
+Currently each component that needs telemetry calls `streamTelemetry` directly
+in a `useEffect` and holds its own local state. This means:
+
+- Multiple components open separate subscriptions to the same stream
+- Telemetry data is lost when the Telemetry view unmounts
+- Alert threshold evaluation (`maxDepthM`, `rollThresholdDeg`, etc.) has no
+  central place to run — it requires a component to be mounted
+
+**What to build:** a `useTelemetryStore` (Zustand) that opens a single
+subscription per `systemId`, fans the snapshot out to all consumers, and
+evaluates alert thresholds independently of which view is currently mounted.
+
+**Files involved:** new `src/stores/useTelemetryStore.ts`, `src/services/telemetryService.ts`, `src/views/Telemetry/Telemetry.tsx`
+
+**Prerequisite:** confirm sensor publish rate with hardware team first (see open
+question above) — affects whether throttling is needed before writing to the store.
+
+---
+
 ## Ideas
 
 ### Throttling utility in the service layer

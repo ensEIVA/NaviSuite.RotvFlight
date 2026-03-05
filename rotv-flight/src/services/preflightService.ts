@@ -49,6 +49,15 @@ export function runSession(
 
   const client = getPreflightClient();
 
+  /**
+   * Asynchronously generates a sequence of check status updates by running a session on the client.
+   * 
+   * This generator function yields `CheckStatusUpdate` objects for each update received from the client's session.
+   * It listens for updates related to the provided `systemIds` and supports cancellation via the `signal`.
+   * Each yielded object contains the system ID, check ID, mapped status, and completion timestamp.
+   *
+   * @yields {CheckStatusUpdate} An object representing the latest status of a system check.
+   */
   async function* generate(): AsyncGenerator<CheckStatusUpdate> {
     for await (const update of client.runSession(
       { systemIds },
