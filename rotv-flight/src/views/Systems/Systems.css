@@ -17,6 +17,7 @@
 }
 
 .systems-view__title {
+  color: var(--element-active-color, #1a1a1a);
   font-family: var(--font-family-main, "Noto Sans");
   font-size: var(--font-size-150, 24px);
   font-weight: var(--font-weight-bold, 670);
@@ -27,6 +28,7 @@
 }
 
 .systems-view__subtitle {
+  color: var(--element-active-color, #1a1a1a);
   font-family: var(--font-family-main, "Noto Sans");
   font-size: var(--global-typography-ui-overline-font-size, 16px);
   font-weight: var(--font-weight-semibold, 570);
