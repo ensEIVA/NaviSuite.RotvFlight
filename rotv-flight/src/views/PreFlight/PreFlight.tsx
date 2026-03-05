@@ -24,6 +24,7 @@ import { ObiRunning } from "@ocean-industries-concept-lab/openbridge-webcomponen
 import { StatusIndicatorStatus } from "@ocean-industries-concept-lab/openbridge-webcomponents/dist/components/status-indicator/status-indicator";
 import { ObiAlarmUnacknowledgedIec } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/icons/icon-alarm-unacknowledged-iec";
 import { ObiPlaceholder } from "@ocean-industries-concept-lab/openbridge-webcomponents-react/icons/icon-placeholder";
+import { logEvent } from "../../utils/logger";
 // ---------------------------------------------------------------------------
 // PreFlight view
 // ---------------------------------------------------------------------------
@@ -60,14 +61,17 @@ export function PreFlight() {
   );
 
   function handleRunAll() {
+    logEvent('info','preflight', 'Pre-flight checks initiated');
     runAllChecks(selectedSystems);
   }
 
   function handleProceed() {
     completeStep2();
+    logEvent('info','preflight', 'Preflight checks completed, proceeding to dashboard');
     navigate("/dashboard");
   }
   function handleCancelPreflightCheck() {
+    logEvent('info','preflight', 'Pre-flight check canceled');
     navigate("/system-selection");
   }
 

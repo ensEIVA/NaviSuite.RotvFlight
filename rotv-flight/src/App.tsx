@@ -3,12 +3,15 @@ import { RouterProvider } from 'react-router-dom';
 import { router } from './router';
 import { MantineProvider } from '@mantine/core';
 import { useSettingsStore } from './stores/useSettingsStore';
+import { useLogsStore } from './stores/useLogsStore';
 
 export default function App() {
-  const load = useSettingsStore((s) => s.load);
+  const loadSettings = useSettingsStore((s) => s.load);
+  const loadLogs     = useLogsStore((s) => s.load);
 
   useEffect(() => {
-    load();
+    loadSettings();
+    loadLogs(''); // stream runs for the entire session — not tied to the Logs view
   }, []);
 
   return (

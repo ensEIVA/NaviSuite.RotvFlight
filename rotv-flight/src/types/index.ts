@@ -301,10 +301,18 @@ export interface DataQualityReport {
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'critical';
 
+/**
+ * Where the entry originated:
+ * - `'stream'`   — pushed by the ROTV server via tailLogs (hardware/system events)
+ * - `'operator'` — injected from frontend code via logEvent() (user actions)
+ */
+export type LogOrigin = 'stream' | 'operator';
+
 export interface LogEntry {
   id: string;
   timestamp: ISOTimestamp;
   level: LogLevel;
+  origin: LogOrigin;
   source: string;
   message: string;
   details?: Record<string, unknown>;
