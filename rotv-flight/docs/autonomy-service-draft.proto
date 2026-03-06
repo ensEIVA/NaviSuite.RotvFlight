@@ -1,0 +1,288 @@
+// =============================================================================
+// DRAFT — Autonomy Service proto contract
+// =============================================================================
+//
+// Status:     DRAFT — for discussion with the Autonomy Service team.
+//             Nothing here is implemented. All names, field numbers, and the
+//             package path are open for revision before either team commits.
+//
+// Context:    This consolidates the 8 direct-to-hardware services currently in
+//             proto/rotv/v1/ into 4 RPCs on a single AutonomyService, per the
+//             architectural decision from the design meeting on 2026-03-05.
+//
+// What the frontend sends:  operator intent (commands)
+// What the frontend receives: vehicle state + events
+// What the Autonomy Service owns: mode state machine, launch/recovery sequences,
+//                                 behavior trees, sensor aggregation
+//
+// Open questions (marked [?] throughout):
+//   - Package path: autonomy.v1 or navisuite.autonomy.v1?
+//   - Full snapshot vs. partial updates on StreamVehicleState?
+//   - Does the Autonomy Service own settings, or does that stay a direct
+//     frontend↔hardware concern?
+//   - Does GetConfiguration replace SystemDiscoveryService entirely, or do
+//     both coexist during a transition period?
+//   - Are pre-flight checks driven by the Autonomy Service or the frontend?
+// =============================================================================
+
+syntax = "proto3";
+
+// [?] Package path — agree with Autonomy team before finalising.
+package autonomy.v1;
+
+option go_package = "github.com/navisuite/autonomy/gen/autonomy/v1;autonomyv1";
+
+
+// =============================================================================
+// Service
+// =============================================================================
+
+service AutonomyService {
+
+  // Subscribe to continuous vehicle state: telemetry, current mode, active
+  // alerts, and subsystem health — all in one stream.
+  // The server emits an update on every sensor tick and on every state change.
+  // [?] Discuss: full snapshot every tick vs. partial update (only changed fields)?
+  rpc StreamVehicleState(StreamVehicleStateRequest) returns (stream VehicleState);
+
+  // Send an operator command. The server acknowledges immediately (accepted or
+  // rejected). Observe resulting state changes via StreamVehicleState and
+  // StreamEvents — the ack does not include outcome.
+  rpc SendCommand(Command) returns (CommandAck);
+
+  // Fetch vehicle configuration: identity, connected sensors, and which modes
+  // are supported by this platform. Call once on connect; re-call if the
+  // vehicle changes.
+  rpc GetConfiguration(ConfigurationRequest) returns (VehicleConfiguration);
+
+  // Subscribe to a live event stream: mode transitions, commands issued,
+  // alerts, hardware faults, pre-flight and calibration outcomes.
+  // Pass since_timestamp to replay historical events from a known point.
+  rpc StreamEvents(StreamEventsRequest) returns (stream Event);
+}
+
+
+// =============================================================================
+// StreamVehicleState
+// =============================================================================
+
+message StreamVehicleStateRequest {
+  string vehicle_id = 1;
+}
+
+// Current operating mode of the vehicle.
+// Launch sequence: ON_DECK → SURFACE → PARKING → [flight mode]
+// Recovery sequence: [flight mode] → PARKING → SURFACE → ON_DECK
+enum VehicleMode {
+  VEHICLE_MODE_UNSPECIFIED    = 0;
+  VEHICLE_MODE_ON_DECK        = 1; // ROTV on deck, pre-launch
+  VEHICLE_MODE_SURFACE        = 2; // At surface, post-launch or pre-recovery
+  VEHICLE_MODE_PARKING        = 3; // Submerged, holding position
+  VEHICLE_MODE_DEPTH_HOLD     = 4; // Flying at fixed depth setpoint
+  VEHICLE_MODE_FOLLOW_SEABED  = 5; // Flying at fixed altitude above seabed
+  VEHICLE_MODE_HEADING        = 6; // Heading-hold (platform-dependent — see VehicleConfiguration.available_modes)
+  VEHICLE_MODE_UNDULATE       = 7; // Undulating depth profile (rarely used, not all platforms)
+}
+
+// Whether an automated sequence (launch or recovery) is currently running.
+enum SequenceState {
+  SEQUENCE_STATE_NONE       = 0; // No active sequence; operator is in manual control
+  SEQUENCE_STATE_LAUNCHING  = 1; // Automated launch sequence in progress
+  SEQUENCE_STATE_RECOVERING = 2; // Automated recovery sequence in progress
+  SEQUENCE_STATE_ABORTED    = 3; // Last sequence was aborted — awaiting operator action
+}
+
+enum AlertSeverity {
+  ALERT_SEVERITY_UNSPECIFIED = 0;
+  ALERT_SEVERITY_INFO        = 1;
+  ALERT_SEVERITY_WARNING     = 2;
+  ALERT_SEVERITY_CRITICAL    = 3;
+}
+
+message Alert {
+  string        id           = 1;
+  string        timestamp    = 2; // ISO 8601
+  string        subsystem    = 3;
+  string        message      = 4;
+  AlertSeverity severity     = 5;
+  bool          acknowledged = 6;
+}
+
+enum SubsystemStatus {
+  SUBSYSTEM_STATUS_UNSPECIFIED = 0;
+  SUBSYSTEM_STATUS_NOMINAL     = 1;
+  SUBSYSTEM_STATUS_WARNING     = 2;
+  SUBSYSTEM_STATUS_CRITICAL    = 3;
+  SUBSYSTEM_STATUS_OFFLINE     = 4;
+}
+
+message SubsystemHealth {
+  string          id      = 1;
+  string          label   = 2;
+  SubsystemStatus status  = 3;
+  optional string message = 4;
+}
+
+// Full vehicle state at a point in time.
+// All sensor fields are optional — a missing field means the sensor is not
+// present or not yet reporting. A field present with value 0.0 means the
+// sensor is reporting zero. Do not conflate absence with zero.
+message VehicleState {
+  string timestamp  = 1; // ISO 8601 — sensor-side timestamp, not server receive time
+  string vehicle_id = 2;
+
+  // --- Mode & sequencing ---
+  VehicleMode    mode           = 3;
+  SequenceState  sequence_state = 4;
+
+  // --- Attitude (IMU) ---
+  optional double roll    = 5; // degrees; negative = port list
+  optional double pitch   = 6; // degrees; positive = nose up
+  optional double heading = 7; // degrees true (0–360)
+
+  // --- Position (USBL / GPS) ---
+  optional double latitude  = 8;
+  optional double longitude = 9;
+  optional double depth     = 10; // metres below surface
+  optional double altitude  = 11; // metres above seabed (DVL)
+
+  // --- Velocity ---
+  optional double surge        = 12; // m/s forward
+  optional double sway         = 13; // m/s lateral
+  optional double heave        = 14; // m/s vertical
+  optional double ground_speed = 15; // knots
+
+  // --- Power ---
+  optional double voltage     = 16; // V
+  optional double current     = 17; // A
+  optional double power_w     = 18; // W
+  optional double battery_pct = 19; // %, only for battery-backed systems
+
+  // --- Environment (CTD / cable) ---
+  optional double tow_cable_tension = 20; // kN
+  optional double water_temp        = 21; // °C
+  optional double salinity          = 22; // PSU
+  optional double sound_velocity    = 23; // m/s
+  optional double cable_out         = 24; // metres
+
+  // --- Health ---
+  repeated Alert           active_alerts    = 25;
+  repeated SubsystemHealth subsystem_health = 26;
+}
+
+
+// =============================================================================
+// SendCommand
+// =============================================================================
+
+message Command {
+  string vehicle_id  = 1;
+  string operator_id = 2; // who issued this — written to the event log
+
+  oneof payload {
+    SetModeCommand        set_mode         = 3;
+    BeginSequenceCommand  begin_sequence   = 4;
+    AbortCommand          abort            = 5;
+    RunPreflightCommand   run_preflight    = 6;  // [?] or does this become part of the launch sequence automatically?
+    RunCalibrationCommand run_calibration  = 7;
+  }
+}
+
+// Direct mode override. The Autonomy Service may reject this if the
+// transition is not legal from the current mode.
+message SetModeCommand {
+  VehicleMode target_mode = 1;
+}
+
+enum SequenceType {
+  SEQUENCE_TYPE_UNSPECIFIED = 0;
+  SEQUENCE_TYPE_LAUNCH      = 1; // ON_DECK → SURFACE → PARKING → target_flight_mode
+  SEQUENCE_TYPE_RECOVERY    = 2; // [current mode] → PARKING → SURFACE → ON_DECK
+}
+
+message BeginSequenceCommand {
+  SequenceType sequence = 1;
+  // For launch only: the flight mode to engage once at operating depth.
+  // Defaults to DEPTH_HOLD if not specified.
+  optional VehicleMode target_flight_mode = 2;
+}
+
+message AbortCommand {
+  string reason = 1; // human-readable; written to event log
+}
+
+// [?] Does the Autonomy Service drive pre-flight checks, or is that still
+// a frontend-owned flow? If the autonomy layer owns it, the frontend just
+// issues this command and observes results via StreamEvents.
+message RunPreflightCommand {
+  repeated string system_ids = 1;
+}
+
+message RunCalibrationCommand {
+  string calibration_id = 1;
+}
+
+message CommandAck {
+  bool            accepted   = 1;
+  string          command_id = 2; // correlate with EVENT_TYPE_COMMAND_ISSUED in StreamEvents
+  optional string reason     = 3; // set if accepted = false
+}
+
+
+// =============================================================================
+// GetConfiguration
+// =============================================================================
+
+message ConfigurationRequest {
+  string vehicle_id = 1;
+}
+
+message SensorInfo {
+  string          id               = 1;
+  string          type             = 2; // e.g. "dvl", "usbl", "imu", "ctd", "camera"
+  string          label            = 3;
+  bool            present          = 4; // detected on the network
+  SubsystemStatus status           = 5;
+  optional string firmware_version = 6;
+}
+
+message VehicleConfiguration {
+  string vehicle_id   = 1;
+  string vehicle_type = 2; // e.g. "ScanFish", "ViperFish"
+  string display_name = 3;
+  string firmware     = 4;
+  string image_url    = 5; // served by the Autonomy Service at /assets/*
+
+  repeated SensorInfo   sensors         = 6;
+  repeated VehicleMode  available_modes = 7; // modes supported by this platform/config
+}
+
+
+// =============================================================================
+// StreamEvents
+// =============================================================================
+
+message StreamEventsRequest {
+  string          vehicle_id      = 1;
+  optional string since_timestamp = 2; // ISO 8601 — replay from this point; omit for live-only
+}
+
+enum EventType {
+  EVENT_TYPE_UNSPECIFIED    = 0;
+  EVENT_TYPE_MODE_CHANGED   = 1; // VehicleMode transition
+  EVENT_TYPE_COMMAND_ISSUED = 2; // operator sent a command (accepted or rejected)
+  EVENT_TYPE_ALERT_RAISED   = 3;
+  EVENT_TYPE_ALERT_CLEARED  = 4;
+  EVENT_TYPE_SYSTEM         = 5; // hardware/firmware events from subsystems
+  EVENT_TYPE_PREFLIGHT      = 6; // check status updates
+  EVENT_TYPE_CALIBRATION    = 7; // calibration progress/outcome
+}
+
+message Event {
+  string    id                = 1;
+  string    timestamp         = 2; // ISO 8601
+  EventType type              = 3;
+  string    source            = 4; // subsystem name or operator_id
+  string    message           = 5;
+  optional string command_id  = 6; // set for COMMAND_ISSUED events — correlates with CommandAck
+}
