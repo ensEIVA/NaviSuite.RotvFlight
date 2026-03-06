@@ -3,26 +3,8 @@
 // =============================================================================
 //
 // Status:     DRAFT — for discussion with the Autonomy Service team. All names, field numbers, and the
-//             package path are open for revision before either team commits.
-//
-// Context:    This consolidates the 8 direct-to-hardware services currently in
-//             proto/rotv/v1/ into 8 RPCs on a single AutonomyService, per the
-//             architectural decision from the design meeting on 2026-03-05.
-//
-// Out of scope for this contract (not consolidated into AutonomyService):
-//   - SettingsService   — operator alert thresholds, display preferences.
-//                         Still direct frontend↔hardware concern, or to be
-//                         clarified with the Autonomy team.
-//   - DiagnosticsService — detailed health history and fault events.
-//                          SubsystemHealth in VehicleStatus covers live state;
-//                          historical diagnostics are unaddressed here.
-//   - LogService        — operational log tail / backlog.
-//                         Unclear whether the Autonomy Service aggregates logs
-//                         or whether each subsystem is queried directly.
-//   - DataQualityService — survey line quality metrics.
-//                          Likely remains a frontend↔hardware concern.
-//   Please advise if any of these should be absorbed by the Autonomy Service.
-//
+//             package path are open for revision.
+
 // Open questions (marked [?] throughout):
 
 //   - StreamTelemetry: full snapshot every tick, or partial updates (only
@@ -41,8 +23,6 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 
 package flight.v1;
-
-option go_package = "github.com/navisuite/autonomy/gen/flight/v1;flightv1";
 
 
 // =============================================================================
@@ -108,43 +88,58 @@ message StreamTelemetryRequest {
   string vehicle_id = 1;
 }
 
-// High-rate sensor snapshot. All fields are optional — absence means the sensor
-// is not present or not yet reporting. Do not conflate absence with zero.
+// Sensor sub-messages. When a sub-message is present, all its fields are valid
+// readings — the sensor is online and reporting. When absent, the subsystem is
+// offline or not fitted. Do not conflate absence with zero.
+
+message Attitude {
+  double roll    = 1; // degrees; negative = port list
+  double pitch   = 2; // degrees; positive = nose up
+  double heading = 3; // degrees true (0–360)
+}
+
+message Position {
+  double latitude  = 1;
+  double longitude = 2;
+  double depth     = 3; // metres below surface
+  double altitude  = 4; // metres above seabed (DVL)
+}
+
+message Velocity {
+  double surge        = 1; // m/s forward
+  double sway         = 2; // m/s lateral
+  double heave        = 3; // m/s vertical
+  double ground_speed = 4; // m/s (over ground)
+}
+
+message Power {
+  double          voltage     = 1; // V
+  double          current     = 2; // A
+  double          power_w     = 3; // W
+  optional double battery_pct = 4; // %; only for battery-backed systems
+}
+
+message Environment {
+  double tow_cable_tension = 1; // kN
+  double water_temp        = 2; // °C
+  double salinity          = 3; // PSU
+  double sound_velocity    = 4; // m/s
+  double cable_out         = 5; // metres
+}
+
+// High-rate sensor snapshot (~10 Hz).
+// An absent sub-message means that sensor subsystem is offline or not fitted.
 //
 // [?] Full snapshot every tick vs. partial updates (only changed fields)?
 message TelemetrySnapshot {
-  google.protobuf.Timestamp timestamp = 1; // sensor-side timestamp
-  string vehicle_id = 2;
+  google.protobuf.Timestamp timestamp   = 1; // sensor-side timestamp
+  string                    vehicle_id  = 2;
 
-  // --- Attitude (IMU) ---
-  optional double roll    = 3; // degrees; negative = port list
-  optional double pitch   = 4; // degrees; positive = nose up
-  optional double heading = 5; // degrees true (0–360)
-
-  // --- Position (USBL / GPS) ---
-  optional double latitude  = 6;
-  optional double longitude = 7;
-  optional double depth     = 8; // metres below surface
-  optional double altitude  = 9; // metres above seabed (DVL)
-
-  // --- Velocity ---
-  optional double surge        = 10; // m/s forward
-  optional double sway         = 11; // m/s lateral
-  optional double heave        = 12; // m/s vertical
-  optional double ground_speed = 13; // m/s (over ground)
-
-  // --- Power ---
-  optional double voltage     = 14; // V
-  optional double current     = 15; // A
-  optional double power_w     = 16; // W
-  optional double battery_pct = 17; // %
-
-  // --- Environment (CTD / cable) ---
-  optional double tow_cable_tension = 18; // kN
-  optional double water_temp        = 19; // °C
-  optional double salinity          = 20; // PSU
-  optional double sound_velocity    = 21; // m/s
-  optional double cable_out         = 22; // metres
+  optional Attitude    attitude    = 3;
+  optional Position    position    = 4;
+  optional Velocity    velocity    = 5;
+  optional Power       power       = 6;
+  optional Environment environment = 7;
 }
 
 
@@ -238,6 +233,7 @@ message Command {
   oneof payload {
     SetModeCommand       set_mode       = 3;
     BeginSequenceCommand begin_sequence = 4;
+    SetSetpointCommand   set_setpoint   = 5;
   }
 }
 
@@ -262,6 +258,17 @@ message BeginSequenceCommand {
   // NOTE: pre-flight outcome is ADVISORY. A launch sequence will not be
   // rejected solely because RunPreflight has not been called or did not pass.
   // It is the operator's responsibility to decide whether to proceed.
+}
+
+// Update one or more flight setpoints. Only the fields relevant to the current
+// mode need to be set — the Autonomy Service ignores irrelevant fields.
+//   depth_m      — target depth below surface (DEPTH_HOLD)
+//   altitude_m   — target altitude above seabed (FOLLOW_SEABED)
+//   heading_deg  — target heading degrees true (HEADING)
+message SetSetpointCommand {
+  optional double depth_m     = 1; // metres below surface
+  optional double altitude_m  = 2; // metres above seabed
+  optional double heading_deg = 3; // degrees true (0–360)
 }
 
 message CommandAck {
@@ -338,13 +345,31 @@ enum EventType {
   EVENT_TYPE_CALIBRATION    = 8; // calibration progress/outcome (also emitted during RunCalibration)
 }
 
+// Structured payloads — one per event type that carries machine-readable data.
+message ModeChangedPayload {
+  VehicleMode previous_mode = 1;
+  VehicleMode new_mode      = 2;
+}
+
+message CommandIssuedPayload {
+  string          command_id = 1;
+  bool            accepted   = 2;
+  optional string reason     = 3; // set if accepted = false
+}
+
 message Event {
   string                    id        = 1;
   google.protobuf.Timestamp timestamp = 2;
-  EventType       type       = 3;
-  string          source     = 4; // subsystem name or operator_id
-  string          message    = 5;
-  optional string command_id = 6; // set for COMMAND_ISSUED and ABORT events
+  EventType                 type      = 3;
+  string                    source    = 4; // subsystem name or operator_id
+  string                    message   = 5; // human-readable summary; always set
+
+  oneof payload {
+    ModeChangedPayload   mode_changed     = 7; // set for MODE_CHANGED
+    CommandIssuedPayload command_issued   = 8; // set for COMMAND_ISSUED and ABORT
+    Alert                alert_raised     = 9; // set for ALERT_RAISED
+    string               alert_cleared_id = 10; // set for ALERT_CLEARED — id of the cleared alert
+  }
 }
 
 
