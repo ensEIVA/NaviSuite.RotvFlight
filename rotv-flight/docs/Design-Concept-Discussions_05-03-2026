@@ -1,0 +1,104 @@
+# Design Concept Discussions - Notes from meeting
+## 🎯Overall Vision for ROTV Flight: 
+ROTV Flight should replace the current ScanFish Flight, but be built as a core platform that can be expanded with new features to meet future business goals and market and user needs.
+MKR is in dialogue with Fugro about potential user involvement in week 3. 
+Next week, MKR, ASM, SOS, REL will go though ASM use cases. MKR warns that they are too detailed, and would prefer to keep use cases focused on user goals and tasks, not specific UI elements.
+## Concept 1 Discussion:
+All agree that it is too similar to the current UI.
+It is questioned whether some elements are redundant - especially the numeric view, which duplicates information shown elsewhere.
+MKR: The system needs to be simplified and more informative. SOS agrees and has many ideas: A collaborative brainstorming activity is suggested.
+Pre-flight mockup issue: some indicators appear green before the check is run (e.g. "Connection to Fish").
+### Mode Complexity: 
+It is noted that the system has too many modes, and the transitions feel inelegant. 
+Example: in On Deck mode, pitch/roll widgets turn red because the fish naturally tilts before entering the water.
+It is suggested that the system should interpret the mode intelligently so "abnormal" values are not flagged when they are expected.
+The following is proposed: 
+A clear overview of all modes.
+A definition of what the interface should show in each mode
+Rules for hiding or greying out irrelevant elements, possibly with explanatory text
+## Concept 2 Discussion:
+### Mode Flows:
+SOS + MKR describe operational flows tied to specific modes: 
+Launch: On Deck --> Surface --> Parking --> Flight Modes (e.g., Follow Seabed, Depth)
+Recovery: Parking --> Surface --> On Deck
+Idea: have two explicit processes: Launch and Recovery, giving user clear feedback on progress.
+Discussion on whether the system should:
+Allow access to individual modes (Parking, Surface)
+Or automatically step through required modes when Launch is initiated. SOS calls this an "Auto sequence", and MKR supports the idea og guiding the user through this in an automated fashion. 
+### Other Points: 
+"Undulate" modes take too much visual space: it is rarely used and not supported by all platforms (e.g., ViperFish)
+Agreement that Deploy and Recover flows are important.
+MKR notes that "Heading" could be relevant depending on customer configuration, even though it is not shown today. Mentions "Side current" as another relevant information. 
+### Configuration Discussion
+What is "Configuration" in a ROTV Flight context? 
+SOS:
+ScanFish has web interface used internally for pre-configuring before shipping systems.
+Customers do not really access this today
+ROTV Flight should include a user-facing configuration for superusers to:
+Add sensors
+See which sensors are present
+Download Firmware updates (this is currently done via web interface)
+MKR:
+Flight computer detects all ROTVs on the network, and the user can connect to any available platform directly from the program. As implied in Concept 1. 
+SOS mentions that the idea of "Resume Session" from concept 1 is good. 
+### NaviSuite 5 Context
+CTM highlights that future architecture will involve many services that must work together, so configuration must be consistent across systems.
+This overlaps with ship-based workflows (sensor adding, sampling rates setting), which are also relevant for ROTV Flight.
+And leads directly to discussion of Concept 3, as this goes well hand in hand with the NaviSuite 5 discussion. 
+## Concept 3 Discussion
+Concept 3 places ROTV Flight within the broader NaviSuite 5 ecosystem, reusing shared UX components across products.
+MKR mentions the potential for an industry-wide sensor broadcast standard, enabling plug and play and autodiscovery - not possible today. 
+Claus notes that the autonomy team's behaviour tree work (automated deployment, state transistions) should be integrated, as it will influence the GUI. 
+
+### Overall Themes: 
+Desire for simplifcation, intelligent mode handling, and clear operational flows.
+Need for user guidance during launch/recovery
+Importance of configuration
+Alignment with NaviSuite 5 and future autonomy features.
+Interest in auto-discovery, plug and play, and shared components across.
+
+# Job to be done
+
+What will this research inform? 
+Not just doing a facelift of Flight as we know it today. 
+Information Architecture and user flows
+The control UI
+
+Defining the Operator job: 
+Safely and efficiently execute subsea tasks under uncertainty 
+Maintain spatial awareness with limited visibility
+Coordinate with surface crew and mission planners
+
+What have I already done: 
+Contextual inquiry: observing ROTV operations. 
+
+Task-based interview: 
+Can you tell me about your background as an ROTV operator? 
+What kind of operations/missions do you usually partake in? 
+What makes a good day versus a bad day? 
+
+Replay real operation step by step:
+Think about the last operation you ran. Walk us through it from setup to completion. 
+What are you trying to achieve? 
+What information are you looking at? 
+What are you watching most closely? 
+What decisions are you making? 
+What could go wrong? 
+
+Where do things slow you down? 
+When do you feel most stressed/overloaded?
+What mistakes are easy to make? 
+What do you double-check every time - and why? 
+How do you compensate when the system does not support you? 
+
+Tell me about a time when things went wrong. What information did you need the most? 
+
+Who are you coordinating with during a mission? 
+What information are they asking you for? 
+What do you need from them to do your job well? 
+How do you explain what the vehicle is doing? 
+
+Current Flight: 
+What frustrates you most about the current system? 
+What feels unintuitive or outdated? 
+If only one thing could be improved, what would help you most? 
