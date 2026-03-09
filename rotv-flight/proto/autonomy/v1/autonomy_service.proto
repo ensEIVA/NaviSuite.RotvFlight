@@ -1,0 +1,428 @@
+// =============================================================================
+// DRAFT — Autonomy Service proto contract
+// =============================================================================
+//
+// Status:     DRAFT — for discussion with the Autonomy Service team. All names, field numbers, and the
+//             package path are open for revision.
+
+// Open questions (marked [?] throughout):
+
+//   - StreamTelemetry: full snapshot every tick, or partial updates (only
+//     changed fields)? Full snapshots are simpler; partial updates save bandwidth.
+//   - System discovery: does GetConfiguration replace SystemDiscoveryService
+//     entirely, or do both coexist during a transition period? The frontend
+//     needs a list of systems available on the network before connecting.
+//   - Data persistence: how much does the Autonomy Service retain across
+//     sessions (logs, operation history, calibration results)?
+//   - Wire units: all numeric values are SI throughout — confirmed on our end.
+//     ground_speed is m/s. Please confirm on yours.
+// =============================================================================
+
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package flight.v1;
+
+
+// =============================================================================
+// Service
+// =============================================================================
+
+service AutonomyService {
+
+  // High-rate instrument data stream (~10 Hz).
+  // Emitted on every sensor tick. Contains attitude, position, velocity, power,
+  // and environmental readings. All sensor fields are optional — absence means
+  // the sensor is not reporting, not that the value is zero.
+  rpc StreamTelemetry(StreamTelemetryRequest) returns (stream TelemetrySnapshot);
+
+  // Low-rate vehicle status stream — emitted on change only.
+  // Contains mode, sequence state, active alerts, and subsystem health.
+  // Separating this from StreamTelemetry avoids delivering status snapshots
+  // at sensor rate and lets the frontend update the alarm panel independently.
+  rpc StreamVehicleStatus(StreamVehicleStatusRequest) returns (stream VehicleStatus);
+
+  // Send an operator command. The server acknowledges immediately (accepted or rejected). Observe resulting state changes via StreamVehicleStatus and
+  // StreamEvents — the ack does not include the eventual outcome.
+  // Mode transition legality is enforced by the Autonomy Service. An illegal SetModeCommand returns accepted=false with a human-readable reason.
+  rpc SendCommand(Command) returns (CommandAck);
+
+  // Emergency stop. Given its own RPC to provide a clear, unambiguous wire
+  // path distinct from routine command traffic. The Autonomy Service must
+  // process this with highest priority.
+  rpc Abort(AbortRequest) returns (AbortAck);
+
+  // Fetch vehicle configuration: identity, connected sensors, and which modes
+  // are supported by this platform. Call once on connect; re-call if the
+  // vehicle changes.
+  //
+  // [?] Does this replace SystemDiscoveryService, or do both coexist?
+  //     The frontend needs a list of available systems before it can connect.
+  rpc GetConfiguration(ConfigurationRequest) returns (VehicleConfiguration);
+
+  // Subscribe to a live event stream: mode transitions, commands issued,
+  // alerts raised/cleared, hardware faults, pre-flight and calibration outcomes.
+  // Pass since_timestamp to replay historical events from a known point.
+  rpc StreamEvents(StreamEventsRequest) returns (stream Event);
+
+  // Run pre-flight checks for the selected subsystems. The stream emits one
+  // PreflightCheckUpdate per check as each result arrives. The stream closes
+  // when all checks have completed (or an unrecoverable fault occurs).
+  //
+  // Pre-flight outcome is ADVISORY: BeginSequence(LAUNCH) will not be rejected
+  // solely because pre-flight has not passed or has not been run.
+  rpc RunPreflight(RunPreflightRequest) returns (stream PreflightCheckUpdate);
+
+  // Run a calibration routine and stream progress updates.
+  // The stream closes when the calibration completes or fails.
+  rpc RunCalibration(RunCalibrationRequest) returns (stream CalibrationUpdate);
+}
+
+
+// =============================================================================
+// StreamTelemetry
+// =============================================================================
+
+message StreamTelemetryRequest {
+  string vehicle_id = 1;
+}
+
+// Sensor sub-messages. When a sub-message is present, all its fields are valid
+// readings — the sensor is online and reporting. When absent, the subsystem is
+// offline or not fitted. Do not conflate absence with zero.
+
+message Attitude {
+  double roll    = 1; // degrees; negative = port list
+  double pitch   = 2; // degrees; positive = nose up
+  double heading = 3; // degrees true (0–360)
+}
+
+message Position {
+  double latitude  = 1;
+  double longitude = 2;
+  double depth     = 3; // metres below surface
+  double altitude  = 4; // metres above seabed (DVL)
+}
+
+message Velocity {
+  double surge        = 1; // m/s forward
+  double sway         = 2; // m/s lateral
+  double heave        = 3; // m/s vertical
+  double ground_speed = 4; // m/s (over ground)
+}
+
+message Power {
+  double          voltage     = 1; // V
+  double          current     = 2; // A
+  double          power_w     = 3; // W
+  optional double battery_pct = 4; // %; only for battery-backed systems
+}
+
+message Environment {
+  double tow_cable_tension = 1; // kN
+  double water_temp        = 2; // °C
+  double salinity          = 3; // PSU
+  double sound_velocity    = 4; // m/s
+  double cable_out         = 5; // metres
+}
+
+// High-rate sensor snapshot (~10 Hz).
+// An absent sub-message means that sensor subsystem is offline or not fitted.
+//
+// [?] Full snapshot every tick vs. partial updates (only changed fields)?
+message TelemetrySnapshot {
+  google.protobuf.Timestamp timestamp   = 1; // sensor-side timestamp
+  string                    vehicle_id  = 2;
+
+  optional Attitude    attitude    = 3;
+  optional Position    position    = 4;
+  optional Velocity    velocity    = 5;
+  optional Power       power       = 6;
+  optional Environment environment = 7;
+}
+
+
+// =============================================================================
+// StreamVehicleStatus
+// =============================================================================
+
+message StreamVehicleStatusRequest {
+  string vehicle_id = 1;
+}
+
+// Current operating mode of the vehicle.
+// Launch sequence: ON_DECK → SURFACE → PARKING → [flight mode]
+// Recovery sequence: [flight mode] → PARKING → SURFACE → ON_DECK
+enum VehicleMode {
+  VEHICLE_MODE_UNSPECIFIED    = 0;
+  VEHICLE_MODE_ON_DECK        = 1; // ROTV on deck, pre-launch
+  VEHICLE_MODE_SURFACE        = 2; // At surface, post-launch or pre-recovery
+  VEHICLE_MODE_PARKING        = 3; // Submerged, holding position
+  VEHICLE_MODE_DEPTH_HOLD     = 4; // Flying at fixed depth setpoint
+  VEHICLE_MODE_FOLLOW_SEABED  = 5; // Flying at fixed altitude above seabed
+  VEHICLE_MODE_HEADING        = 6; // Heading-hold (platform-dependent — see VehicleConfiguration.available_modes)
+  VEHICLE_MODE_UNDULATE       = 7; // Undulating depth profile (rarely used, not all platforms)
+}
+
+// Whether an automated sequence (launch or recovery) is currently running.
+enum SequenceState {
+  SEQUENCE_STATE_NONE       = 0; // No active sequence; operator is in manual control
+  SEQUENCE_STATE_LAUNCHING  = 1; // Automated launch sequence in progress
+  SEQUENCE_STATE_RECOVERING = 2; // Automated recovery sequence in progress
+  SEQUENCE_STATE_ABORTED    = 3; // Last sequence was aborted — awaiting operator action
+}
+
+enum AlertSeverity {
+  ALERT_SEVERITY_UNSPECIFIED = 0;
+  ALERT_SEVERITY_INFO        = 1;
+  ALERT_SEVERITY_WARNING     = 2;
+  ALERT_SEVERITY_CRITICAL    = 3;
+}
+
+// Every alert emitted here has been determined to be actionable by the
+// Autonomy Service. Context-inappropriate alerts (e.g. pitch/roll warnings
+// while ON_DECK) are suppressed server-side and will not appear in this list.
+message Alert {
+  string                    id        = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  string        subsystem    = 3;
+  string        message      = 4;
+  AlertSeverity severity     = 5;
+  bool          acknowledged = 6;
+}
+
+enum SubsystemStatus {
+  SUBSYSTEM_STATUS_UNSPECIFIED = 0;
+  SUBSYSTEM_STATUS_NOMINAL     = 1;
+  SUBSYSTEM_STATUS_WARNING     = 2;
+  SUBSYSTEM_STATUS_CRITICAL    = 3;
+  SUBSYSTEM_STATUS_OFFLINE     = 4;
+}
+
+message SubsystemHealth {
+  string          id      = 1;
+  string          label   = 2;
+  SubsystemStatus status  = 3;
+  optional string message = 4;
+}
+
+// Emitted on change only (mode transition, alert raised/cleared, subsystem
+// status change). Not emitted on every sensor tick.
+message VehicleStatus {
+  google.protobuf.Timestamp timestamp = 1;
+  string vehicle_id = 2;
+
+  VehicleMode   mode           = 3;
+  SequenceState sequence_state = 4;
+
+  // Alerts here are already suppression-filtered by the Autonomy Service.
+  repeated Alert           active_alerts    = 5;
+  repeated SubsystemHealth subsystem_health = 6;
+}
+
+
+// =============================================================================
+// SendCommand
+// =============================================================================
+
+message Command {
+  string vehicle_id  = 1;
+  string operator_id = 2; // who issued this — written to the event log
+
+  oneof payload {
+    SetModeCommand       set_mode       = 3;
+    BeginSequenceCommand begin_sequence = 4;
+    SetSetpointCommand   set_setpoint   = 5;
+  }
+}
+
+// Direct mode override. The Autonomy Service enforces state-machine legality:
+// illegal transitions return CommandAck.accepted=false with a reason string.
+message SetModeCommand {
+  VehicleMode target_mode = 1;
+}
+
+enum SequenceType {
+  SEQUENCE_TYPE_UNSPECIFIED = 0;
+  SEQUENCE_TYPE_LAUNCH      = 1; // ON_DECK → SURFACE → PARKING → target_flight_mode
+  SEQUENCE_TYPE_RECOVERY    = 2; // [current mode] → PARKING → SURFACE → ON_DECK
+}
+
+message BeginSequenceCommand {
+  SequenceType sequence = 1;
+  // For launch only: the flight mode to engage once at operating depth.
+  // Defaults to DEPTH_HOLD if not specified.
+  optional VehicleMode target_flight_mode = 2;
+
+  // NOTE: pre-flight outcome is ADVISORY. A launch sequence will not be
+  // rejected solely because RunPreflight has not been called or did not pass.
+  // It is the operator's responsibility to decide whether to proceed.
+}
+
+// Update one or more flight setpoints. Only the fields relevant to the current
+// mode need to be set — the Autonomy Service ignores irrelevant fields.
+//   depth_m      — target depth below surface (DEPTH_HOLD)
+//   altitude_m   — target altitude above seabed (FOLLOW_SEABED)
+//   heading_deg  — target heading degrees true (HEADING)
+message SetSetpointCommand {
+  optional double depth_m     = 1; // metres below surface
+  optional double altitude_m  = 2; // metres above seabed
+  optional double heading_deg = 3; // degrees true (0–360)
+}
+
+message CommandAck {
+  bool            accepted   = 1;
+  string          command_id = 2; // correlate with EVENT_TYPE_COMMAND_ISSUED in StreamEvents
+  optional string reason     = 3; // set if accepted = false
+}
+
+
+// =============================================================================
+// Abort
+// =============================================================================
+
+// Emergency stop — given its own RPC to provide a clear, unambiguous wire path distinct from routine command traffic.
+message AbortRequest {
+  string vehicle_id  = 1;
+  string operator_id = 2;
+  string reason      = 3; // human-readable; written to event log
+}
+
+message AbortAck {
+  bool            accepted  = 1;
+  optional string reason    = 2; // set if accepted = false (should be rare)
+}
+
+
+// =============================================================================
+// GetConfiguration
+// =============================================================================
+
+message ConfigurationRequest {
+  string vehicle_id = 1;
+}
+
+message SensorInfo {
+  string          id               = 1;
+  string          type             = 2; // e.g. "dvl", "usbl", "imu", "ctd", "camera"
+  string          label            = 3;
+  bool            present          = 4; // detected on the network
+  SubsystemStatus status           = 5;
+  optional string firmware_version = 6;
+}
+
+message VehicleConfiguration {
+  string vehicle_id   = 1;
+  string vehicle_type = 2; // e.g. "ScanFish", "ViperFish" ..
+  string display_name = 3;
+  string firmware     = 4;
+  string image_url    = 5; // served by the Autonomy Service at /assets/*
+
+  repeated SensorInfo   sensors         = 6;
+  repeated VehicleMode  available_modes = 7; // modes supported by this platform/config
+}
+
+
+// =============================================================================
+// StreamEvents
+// =============================================================================
+
+message StreamEventsRequest {
+  string                              vehicle_id      = 1;
+  optional google.protobuf.Timestamp  since_timestamp = 2; // replay from this point; omit for live-only
+}
+
+enum EventType {
+  EVENT_TYPE_UNSPECIFIED    = 0;
+  EVENT_TYPE_MODE_CHANGED   = 1; // VehicleMode transition
+  EVENT_TYPE_COMMAND_ISSUED = 2; // operator sent a command (accepted or rejected)
+  EVENT_TYPE_ABORT          = 3; // Abort RPC called
+  EVENT_TYPE_ALERT_RAISED   = 4;
+  EVENT_TYPE_ALERT_CLEARED  = 5;
+  EVENT_TYPE_SYSTEM         = 6; // hardware/firmware events from subsystems
+  EVENT_TYPE_PREFLIGHT      = 7; // check status updates (also emitted during RunPreflight)
+  EVENT_TYPE_CALIBRATION    = 8; // calibration progress/outcome (also emitted during RunCalibration)
+}
+
+// Structured payloads — one per event type that carries machine-readable data.
+message ModeChangedPayload {
+  VehicleMode previous_mode = 1;
+  VehicleMode new_mode      = 2;
+}
+
+message CommandIssuedPayload {
+  string          command_id = 1;
+  bool            accepted   = 2;
+  optional string reason     = 3; // set if accepted = false
+}
+
+message Event {
+  string                    id        = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  EventType                 type      = 3;
+  string                    source    = 4; // subsystem name or operator_id
+  string                    message   = 5; // human-readable summary; always set
+
+  oneof payload {
+    ModeChangedPayload   mode_changed     = 7; // set for MODE_CHANGED
+    CommandIssuedPayload command_issued   = 8; // set for COMMAND_ISSUED and ABORT
+    Alert                alert_raised     = 9; // set for ALERT_RAISED
+    string               alert_cleared_id = 10; // set for ALERT_CLEARED — id of the cleared alert
+  }
+}
+
+
+// =============================================================================
+// RunPreflight
+// =============================================================================
+
+message RunPreflightRequest {
+  string          vehicle_id = 1;
+  repeated string system_ids = 2; // subsystems to check; empty = all
+}
+
+enum PreflightCheckStatus {
+  PREFLIGHT_CHECK_STATUS_UNSPECIFIED = 0;
+  PREFLIGHT_CHECK_STATUS_RUNNING     = 1;
+  PREFLIGHT_CHECK_STATUS_PASSED      = 2;
+  PREFLIGHT_CHECK_STATUS_FAILED      = 3;
+  PREFLIGHT_CHECK_STATUS_SKIPPED     = 4;
+}
+
+// One message per check. The stream closes after the final check result.
+// Pre-flight outcome is advisory — see BeginSequenceCommand for details.
+message PreflightCheckUpdate {
+  string               check_id  = 1;
+  string               label     = 2;
+  string               subsystem = 3;
+  PreflightCheckStatus status    = 4;
+  optional string      message   = 5; // present on FAILED or SKIPPED
+}
+
+
+// =============================================================================
+// RunCalibration
+// =============================================================================
+
+message RunCalibrationRequest {
+  string vehicle_id     = 1;
+  string calibration_id = 2;
+}
+
+enum CalibrationStatus {
+  CALIBRATION_STATUS_UNSPECIFIED = 0;
+  CALIBRATION_STATUS_RUNNING     = 1;
+  CALIBRATION_STATUS_PASSED      = 2;
+  CALIBRATION_STATUS_FAILED      = 3;
+}
+
+// Progress updates streamed during calibration. The stream closes on
+// PASSED or FAILED. Intermediate RUNNING messages may carry a progress
+// percentage or descriptive message.
+message CalibrationUpdate {
+  string            calibration_id = 1;
+  CalibrationStatus status         = 2;
+  optional int32    progress_pct   = 3; // 0–100, emitted during RUNNING
+  optional string   message        = 4; // human-readable progress or failure detail
+}

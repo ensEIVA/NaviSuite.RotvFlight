@@ -24,6 +24,7 @@ import { DiagnosticsService }      from '../src/gen/rotv/v1/diagnostics_pb.js';
 import { LogService }              from '../src/gen/rotv/v1/logs_pb.js';
 import { DataQualityService }      from '../src/gen/rotv/v1/data_quality_pb.js';
 import { SettingsService }         from '../src/gen/rotv/v1/settings_pb.js';
+import { AutonomyService }         from '../src/gen/autonomy/v1/autonomy_service_pb.js';
 
 import { systemDiscoveryHandler } from './handlers/systemDiscovery.js';
 import { preflightHandler }       from './handlers/preflight.js';
@@ -33,6 +34,7 @@ import { diagnosticsHandler }     from './handlers/diagnostics.js';
 import { logHandler }             from './handlers/logs.js';
 import { dataQualityHandler }     from './handlers/dataQuality.js';
 import { settingsHandler }        from './handlers/settings.js';
+import { autonomyHandler }        from './handlers/autonomy.js';
 
 // ---------------------------------------------------------------------------
 // Config
@@ -65,6 +67,7 @@ function routes(router: ConnectRouter) {
   router.service(LogService,             logHandler);
   router.service(DataQualityService,     dataQualityHandler);
   router.service(SettingsService,        settingsHandler);
+  router.service(AutonomyService,        autonomyHandler);
 }
 
 const connectHandler = connectNodeAdapter({ routes });

@@ -8,6 +8,7 @@ import { DiagnosticsService } from '../gen/rotv/v1/diagnostics_pb';
 import { LogService } from '../gen/rotv/v1/logs_pb';
 import { DataQualityService } from '../gen/rotv/v1/data_quality_pb';
 import { SettingsService } from '../gen/rotv/v1/settings_pb';
+import { AutonomyService } from '../gen/autonomy/v1/autonomy_service_pb';
 
 function requireTransport() {
   if (!transport) throw new Error('ConnectRPC transport not initialised (VITE_USE_GRPC=false)');
@@ -37,3 +38,6 @@ export const getDataQualityClient = () =>
 
 export const getSettingsClient = () =>
   createClient(SettingsService, requireTransport());
+
+export const getAutonomyClient = () =>
+  createClient(AutonomyService, requireTransport());
